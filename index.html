@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07101c">
+<title>WealthOS — Private Research Command Centre</title>
+<style>
+:root{--bg:#07101c;--panel:#0c1727;--panel2:#101f33;--line:#22324a;--text:#edf4fb;--muted:#91a4bd;--green:#43d17d;--amber:#ffbe55;--red:#ff6b76;--cyan:#56c9ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.shell{max-width:1400px;margin:auto;padding:22px}.hidden{display:none!important}.card{background:linear-gradient(180deg,#101f33,#0a1727);border:1px solid var(--line);border-radius:14px;padding:16px}
+.auth{max-width:520px;margin:8vh auto}.brand{font-size:25px;font-weight:850}.brand small{display:block;font-size:12px;color:var(--muted);font-weight:500}.label{font-size:11px;text-transform:uppercase;letter-spacing:.75px;color:var(--muted)}
+input,button{font:inherit}.input{width:100%;background:#091625;border:1px solid var(--line);color:var(--text);padding:11px;border-radius:9px;margin-top:7px}.btn{padding:10px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:var(--text);cursor:pointer}.btn.primary{border-color:#226b88;background:#123d52}.btn.danger{border-color:#7b2731;background:#3a1118}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.space{justify-content:space-between}.muted{color:var(--muted)}.red{color:var(--red)}.amber{color:var(--amber)}.green{color:var(--green)}.cyan{color:var(--cyan)}
+.badge{padding:6px 9px;border:1px solid var(--line);border-radius:999px;font-size:11px;font-weight:800}.badge.red{border-color:#7b2731;background:#35131a}.badge.amber{border-color:#725827;background:#2b210f}.badge.green{border-color:#246a42;background:#102c1e}
+.callout{padding:12px;border-left:3px solid var(--amber);background:#231d11;border-radius:8px;margin:12px 0}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.metric .value{font-size:23px;font-weight:800;margin-top:5px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.op{min-height:300px}.op h3{margin:5px 0 0;font-size:20px}.score{font-size:29px;font-weight:850}.divider{height:1px;background:var(--line);margin:12px 0}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:11px;text-transform:uppercase;color:var(--muted)}
+pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;padding:9px;border-radius:8px;border:1px solid var(--line);font-size:12px}
+.qr{background:white;padding:10px;border-radius:10px;max-width:220px;display:block;margin:12px auto}.top{margin-bottom:14px}
+@media(max-width:950px){.metrics,.cards{grid-template-columns:1fr 1fr}}@media(max-width:620px){.metrics,.cards{grid-template-columns:1fr}.shell{padding:12px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <section id="authPanel" class="auth card">
+    <div class="brand">WealthOS<small>Private Research Command Centre</small></div>
+    <p class="muted">Authorized users only. Live capital remains locked.</p>
+    <div id="authError" class="red"></div>
+    <form id="loginForm">
+      <label class="label">Email</label><input id="email" class="input" type="email" autocomplete="username" required>
+      <label class="label" style="display:block;margin-top:12px">Password</label><input id="password" class="input" type="password" autocomplete="current-password" required>
+      <button class="btn primary" style="margin-top:14px;width:100%">Sign in</button>
+    </form>
+  </section>
+
+  <section id="accessPanel" class="auth card hidden">
+    <div class="brand">WealthOS<small>Access Control</small></div>
+    <h2>Account authenticated, but WealthOS access is not granted.</h2>
+    <p class="muted">This account must be explicitly added to the private WealthOS access register by an administrator.</p>
+    <button id="accessLogout" class="btn">Sign out</button>
+  </section>
+
+  <section id="mfaEnrollPanel" class="auth card hidden">
+    <div class="brand">WealthOS<small>MFA Enrollment</small></div>
+    <h2>Set up TOTP authentication</h2>
+    <p class="muted">Scan the QR code with your authenticator app, then enter the current six-digit code.</p>
+    <div id="enrollError" class="red"></div>
+    <button id="startEnroll" class="btn primary">Generate MFA QR code</button>
+    <div id="enrollDetails" class="hidden">
+      <img id="qr" class="qr" alt="TOTP QR code">
+      <div class="label">Manual secret</div><pre id="totpSecret"></pre>
+      <input id="enrollCode" class="input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Authenticator code">
+      <button id="verifyEnroll" class="btn primary" style="margin-top:10px;width:100%">Enable MFA</button>
+    </div>
+    <button id="enrollLogout" class="btn" style="margin-top:10px">Sign out</button>
+  </section>
+
+  <section id="mfaChallengePanel" class="auth card hidden">
+    <div class="brand">WealthOS<small>MFA Verification</small></div>
+    <h2>Enter your authenticator code</h2>
+    <div id="challengeError" class="red"></div>
+    <input id="challengeCode" class="input" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="Authenticator code">
+    <button id="verifyChallenge" class="btn primary" style="margin-top:10px;width:100%">Verify & enter WealthOS</button>
+    <button id="challengeLogout" class="btn" style="margin-top:10px">Sign out</button>
+  </section>
+
+  <section id="appPanel" class="hidden">
+    <header class="row space top">
+      <div><div class="label">Private investment research platform</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
+      <div class="row"><span class="badge amber">RESEARCH / PAPER ONLY</span><span class="badge red">LIVE CAPITAL LOCKED</span><span id="aalBadge" class="badge green">MFA AAL2</span><button id="logout" class="btn">Sign out</button></div>
+    </header>
+    <div class="callout"><strong>Evidence before execution.</strong> Research status is not a buy/sell instruction. All Opportunity Cards remain <code>trade_eligible=false</code>.</div>
+
+    <div class="metrics">
+      <div class="card metric"><div class="label">Latest ingestion</div><div id="ingestState" class="value">—</div><div id="ingestMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Latest feature run</div><div id="featureState" class="value">—</div><div id="featureMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Evidence layer</div><div id="evidenceState" class="value">—</div><div id="evidenceMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Fundamentals</div><div id="fundState" class="value">—</div><div id="fundMeta" class="muted"></div></div>
+    </div>
+
+    <div class="row space"><h2>Opportunity Decision Cards</h2><button id="refresh" class="btn">Refresh</button></div>
+    <div id="cards" class="cards"></div>
+
+    <div class="card" style="margin-top:14px">
+      <h2>Governance state</h2>
+      <table><tbody>
+        <tr><td>Execution authority</td><td class="red"><strong>NONE</strong></td></tr>
+        <tr><td>Broker connected</td><td>No</td></tr>
+        <tr><td>Live-mode database lock</td><td class="green">Active</td></tr>
+        <tr><td>Opportunity card trade eligibility</td><td class="red">False</td></tr>
+        <tr><td>Authenticated research access</td><td class="green">MFA + access register</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.105.0';
+
+const SUPABASE_URL='https://vgnozvmsmlhrnhzufwkq.supabase.co';
+const SUPABASE_KEY='sb_publishable_he6oRWjayspOq6W2bHWFug_J4Jkvj7P';
+const supabase=createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+
+const $=id=>document.getElementById(id);
+const panels=['authPanel','accessPanel','mfaEnrollPanel','mfaChallengePanel','appPanel'];
+function show(id){panels.forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function pct(v){return v==null?'—':Number(v).toFixed(2)+'%'}
+function num(v){return v==null?'—':Number(v).toFixed(2)}
+function dt(v){return v?new Date(v).toLocaleString():'—'}
+function entries(obj){return Object.entries(obj||{}).map(([k,v])=>'<li><strong>'+esc(k.replaceAll('_',' '))+'</strong>: '+esc(v)+'</li>').join('')||'<li class="muted">None recorded</li>'}
+function gaps(a){return (a||[]).map(v=>'<li>'+esc(v)+'</li>').join('')||'<li class="muted">None recorded</li>'}
+
+async function membership(){
+  const {data,error}=await supabase.from('wealthos_access').select('role,active,require_mfa').maybeSingle();
+  if(error) throw error;
+  return data;
+}
+async function verifiedFactor(){
+  const {data,error}=await supabase.auth.mfa.listFactors();
+  if(error) throw error;
+  return (data?.totp||[]).find(f=>f.status==='verified') || null;
+}
+async function route(){
+  panels.forEach(x=>$(x).classList.add('hidden'));
+  const {data:{session}}=await supabase.auth.getSession();
+  if(!session){show('authPanel');return}
+  let m;
+  try{m=await membership()}catch(e){$('authError').textContent=e.message;show('authPanel');return}
+  if(!m?.active){show('accessPanel');return}
+  const {data:aal,error}=await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if(error){$('authError').textContent=error.message;show('authPanel');return}
+  if(m.require_mfa && aal.currentLevel!=='aal2'){
+    const factor=await verifiedFactor();
+    show(factor?'mfaChallengePanel':'mfaEnrollPanel');
+    return;
+  }
+  $('sessionUser').textContent=session.user.email||'Authorized user';
+  $('aalBadge').textContent='MFA '+String(aal.currentLevel||'').toUpperCase();
+  show('appPanel');
+  await loadDashboard();
+}
+
+$('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault();$('authError').textContent='';
+  const {error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+  if(error){$('authError').textContent=error.message;return}
+  await route();
+});
+
+let enrollment=null;
+$('startEnroll').onclick=async()=>{
+  $('enrollError').textContent='';
+  const {data,error}=await supabase.auth.mfa.enroll({factorType:'totp',friendlyName:'WealthOS'});
+  if(error){$('enrollError').textContent=error.message;return}
+  enrollment=data;
+  $('qr').src=data.totp.qr_code;
+  $('totpSecret').textContent=data.totp.secret;
+  $('enrollDetails').classList.remove('hidden');
+};
+$('verifyEnroll').onclick=async()=>{
+  if(!enrollment){$('enrollError').textContent='Generate the MFA factor first.';return}
+  const code=$('enrollCode').value.trim();
+  const {error}=await supabase.auth.mfa.challengeAndVerify({factorId:enrollment.id,code});
+  if(error){$('enrollError').textContent=error.message;return}
+  await route();
+};
+$('verifyChallenge').onclick=async()=>{
+  $('challengeError').textContent='';
+  const factor=await verifiedFactor();
+  if(!factor){$('challengeError').textContent='No verified TOTP factor found.';return}
+  const {error}=await supabase.auth.mfa.challengeAndVerify({factorId:factor.id,code:$('challengeCode').value.trim()});
+  if(error){$('challengeError').textContent=error.message;return}
+  await route();
+};
+
+async function latest(table,cols='*'){
+  const {data,error}=await supabase.from(table).select(cols).order('started_at',{ascending:false}).limit(1).maybeSingle();
+  if(error) throw error;
+  return data;
+}
+async function loadDashboard(){
+  $('cards').innerHTML='<div class="card muted">Loading verified research…</div>';
+  try{
+    const [ing,feat,evid,fund,cards]=await Promise.all([
+      latest('ingestion_runs','started_at,status,success_count,failure_count,data_eligible_count,trade_eligible'),
+      latest('feature_runs','started_at,status,instruments_considered,instruments_ready'),
+      latest('evidence_runs','started_at,status,macro_success_count,macro_failure_count,sec_success_count,sec_failure_count,trade_eligible'),
+      latest('fundamental_runs','started_at,status,issuer_success_count,issuer_failure_count,fact_count,trade_eligible'),
+      supabase.from('opportunity_decision_cards').select('id,instrument_id,as_of,research_status,research_priority_score,confidence,evidence_reliability_score,supporting_evidence,counter_evidence,evidence_gaps,scenario_framework,rationale,data_eligible,trade_eligible').order('as_of',{ascending:false}).limit(20)
+    ]);
+    if(cards.error) throw cards.error;
+    const ids=[...new Set((cards.data||[]).map(c=>c.instrument_id))];
+    const iq=ids.length?await supabase.from('instruments').select('id,symbol,name,asset_class').in('id',ids):{data:[],error:null};
+    if(iq.error) throw iq.error;
+    const im=new Map((iq.data||[]).map(i=>[i.id,i]));
+
+    $('ingestState').textContent=ing?.status?.toUpperCase()||'—';
+    $('ingestState').className='value '+(ing?.failure_count?'red':'green');
+    $('ingestMeta').textContent=ing?ing.data_eligible_count+' eligible · '+ing.failure_count+' failures · '+dt(ing.started_at):'No run';
+    $('featureState').textContent=feat?.status?.toUpperCase()||'—';
+    $('featureState').className='value '+(feat?.status==='completed'?'green':'amber');
+    $('featureMeta').textContent=feat?feat.instruments_ready+'/'+feat.instruments_considered+' ready · '+dt(feat.started_at):'No run';
+    $('evidenceState').textContent=evid?.status?.toUpperCase()||'—';
+    $('evidenceState').className='value '+(evid?.status==='completed'?'green':'amber');
+    $('evidenceMeta').textContent=evid?(evid.macro_success_count+' macro · '+evid.sec_success_count+' SEC · '+dt(evid.started_at)):'No run';
+    $('fundState').textContent=fund?.status?.toUpperCase()||'—';
+    $('fundState').className='value '+(fund?.status==='completed'?'green':'amber');
+    $('fundMeta').textContent=fund?(fund.issuer_success_count+' issuers · '+fund.fact_count+' facts · '+dt(fund.started_at)):'No run';
+
+    const latestByInstrument=new Map();
+    for(const c of cards.data||[]) if(!latestByInstrument.has(c.instrument_id)) latestByInstrument.set(c.instrument_id,c);
+    const rows=[...latestByInstrument.values()];
+    $('cards').innerHTML=rows.length?rows.map(c=>{
+      const i=im.get(c.instrument_id)||{};
+      const statusClass=c.research_status==='WATCH'||c.research_status==='INVESTIGATE'?'amber':c.research_status==='INSUFFICIENT_DATA'?'red':'cyan';
+      return '<article class="card op">'+
+        '<div class="row space"><div><div class="label">'+esc(i.asset_class||'instrument')+'</div><h3>'+esc(i.symbol||c.instrument_id)+'</h3><div class="muted">'+esc(i.name||'')+'</div></div><span class="badge '+statusClass+'">'+esc(c.research_status)+'</span></div>'+
+        '<div class="divider"></div>'+
+        '<div class="row space"><div><div class="label">Research priority</div><div class="score">'+num(c.research_priority_score)+'</div></div><div><div class="label">Confidence</div><strong>'+pct(c.confidence)+'</strong><br><span class="muted">Evidence '+pct(c.evidence_reliability_score)+'</span></div></div>'+
+        '<div class="divider"></div><div class="label">Supporting evidence</div><ul>'+entries(c.supporting_evidence)+'</ul>'+
+        '<div class="label">Counter evidence</div><ul>'+entries(c.counter_evidence)+'</ul>'+
+        '<div class="label">Evidence gaps</div><ul>'+gaps(c.evidence_gaps)+'</ul>'+
+        '<div class="label">Scenario policy</div><pre>'+esc(JSON.stringify(c.scenario_framework,null,2))+'</pre>'+
+        '<div class="muted">'+esc(c.rationale)+'</div><div style="margin-top:8px" class="red"><strong>trade_eligible = '+esc(c.trade_eligible)+'</strong></div>'+
+      '</article>';
+    }).join(''):'<div class="card muted">No Opportunity Cards available.</div>';
+  }catch(e){
+    $('cards').innerHTML='<div class="card red">Unable to load research data: '+esc(e.message)+'</div>';
+  }
+}
+
+$('refresh').onclick=loadDashboard;
+async function signOut(){await supabase.auth.signOut();location.reload()}
+['logout','accessLogout','enrollLogout','challengeLogout'].forEach(id=>$(id).onclick=signOut);
+supabase.auth.onAuthStateChange(()=>setTimeout(route,0));
+route();
+</script>
+</body></html>
