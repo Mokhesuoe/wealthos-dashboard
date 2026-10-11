@@ -16,7 +16,7 @@ input,button{font:inherit}.input{width:100%;background:#091625;border:1px solid 
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.metric .value{font-size:23px;font-weight:800;margin-top:5px}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.op{min-height:300px}.op h3{margin:5px 0 0;font-size:20px}.score{font-size:29px;font-weight:850}.divider{height:1px;background:var(--line);margin:12px 0}
 table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:11px;text-transform:uppercase;color:var(--muted)}
-pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;padding:9px;border-radius:8px;border:1px solid var(--line);font-size:12px}
+pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;padding:9px;border-radius:8px;border:1px solid var(--line);font-size:12px}.scenarioGrid{display:grid;gap:8px;margin:8px 0 12px}.scenarioItem{background:#081421;border:1px solid var(--line);border-radius:8px;padding:9px}.scenarioItem strong{display:inline-block;min-width:42px;text-transform:capitalize}.scenarioItem.bear strong{color:var(--red)}.scenarioItem.base strong{color:var(--cyan)}.scenarioItem.bull strong{color:var(--green)}
 .qr{background:white;padding:10px;border-radius:10px;max-width:220px;display:block;margin:12px auto}.top{margin-bottom:14px}
 @media(max-width:950px){.metrics,.cards{grid-template-columns:1fr 1fr}}@media(max-width:620px){.metrics,.cards{grid-template-columns:1fr}.shell{padding:12px}}
 </style>
@@ -109,8 +109,20 @@ function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 function pct(v){return v==null?'—':Number(v).toFixed(2)+'%'}
 function num(v){return v==null?'—':Number(v).toFixed(2)}
 function dt(v){return v?new Date(v).toLocaleString():'—'}
-function entries(obj){return Object.entries(obj||{}).map(([k,v])=>'<li><strong>'+esc(k.replaceAll('_',' '))+'</strong>: '+esc(v)+'</li>').join('')||'<li class="muted">None recorded</li>'}
+function human(k){return String(k||'').replaceAll('_',' ').replace(/\b\w/g,m=>m.toUpperCase())}
+function evidenceValue(k,v){
+  if(v==null)return '—';
+  if(typeof v==='number'){
+    const key=String(k||'').toLowerCase();
+    if(key.includes('pct')||key.includes('percent')||key.includes('margin')||key.includes('growth'))return Number(v).toFixed(2)+'%';
+    return Number(v).toLocaleString(undefined,{maximumFractionDigits:2});
+  }
+  return String(v);
+}
+function entries(obj){return Object.entries(obj||{}).map(([k,v])=>'<li><strong>'+esc(human(k))+'</strong>: '+esc(evidenceValue(k,v))+'</li>').join('')||'<li class="muted">None recorded</li>'}
 function gaps(a){return (a||[]).map(v=>'<li>'+esc(v)+'</li>').join('')||'<li class="muted">None recorded</li>'}
+function scenario(obj){const x=obj||{};return ['bear','base','bull'].filter(k=>x[k]).map(k=>'<div class="scenarioItem '+k+'"><strong>'+esc(k)+'</strong> '+esc(x[k])+'</div>').join('')||'<div class="scenarioItem muted">No validated scenario model yet.</div>'}
+function stateClass(status,failures=0){if(Number(failures)>0)return 'red';const s=String(status||'').toLowerCase();if(s==='completed'||s==='success')return 'green';if(s==='skipped'||s==='partial'||s==='pending')return 'amber';return 'cyan'}
 
 async function membership(){
   const {data,error}=await supabase.from('wealthos_access').select('role,active,require_mfa').maybeSingle();
@@ -197,16 +209,16 @@ async function loadDashboard(){
     const im=new Map((iq.data||[]).map(i=>[i.id,i]));
 
     $('ingestState').textContent=ing?.status?.toUpperCase()||'—';
-    $('ingestState').className='value '+(ing?.failure_count?'red':'green');
-    $('ingestMeta').textContent=ing?ing.data_eligible_count+' eligible · '+ing.failure_count+' failures · '+dt(ing.started_at):'No run';
+    $('ingestState').className='value '+stateClass(ing?.status,ing?.failure_count);
+    $('ingestMeta').textContent=ing?(String(ing.status).toLowerCase()==='skipped'&&Number(ing.data_eligible_count)===0?'No eligible instruments for this run · ':ing.data_eligible_count+' eligible · ')+ing.failure_count+' failures · '+dt(ing.started_at):'No run';
     $('featureState').textContent=feat?.status?.toUpperCase()||'—';
-    $('featureState').className='value '+(feat?.status==='completed'?'green':'amber');
-    $('featureMeta').textContent=feat?feat.instruments_ready+'/'+feat.instruments_considered+' ready · '+dt(feat.started_at):'No run';
+    $('featureState').className='value '+stateClass(feat?.status);
+    $('featureMeta').textContent=feat?(String(feat.status).toLowerCase()==='skipped'?'No instruments ready for this run · ':'')+feat.instruments_ready+'/'+feat.instruments_considered+' ready · '+dt(feat.started_at):'No run';
     $('evidenceState').textContent=evid?.status?.toUpperCase()||'—';
-    $('evidenceState').className='value '+(evid?.status==='completed'?'green':'amber');
+    $('evidenceState').className='value '+stateClass(evid?.status);
     $('evidenceMeta').textContent=evid?(evid.macro_success_count+' macro · '+evid.sec_success_count+' SEC · '+dt(evid.started_at)):'No run';
     $('fundState').textContent=fund?.status?.toUpperCase()||'—';
-    $('fundState').className='value '+(fund?.status==='completed'?'green':'amber');
+    $('fundState').className='value '+stateClass(fund?.status);
     $('fundMeta').textContent=fund?(fund.issuer_success_count+' issuers · '+fund.fact_count+' facts · '+dt(fund.started_at)):'No run';
 
     const latestByInstrument=new Map();
@@ -222,7 +234,7 @@ async function loadDashboard(){
         '<div class="divider"></div><div class="label">Supporting evidence</div><ul>'+entries(c.supporting_evidence)+'</ul>'+
         '<div class="label">Counter evidence</div><ul>'+entries(c.counter_evidence)+'</ul>'+
         '<div class="label">Evidence gaps</div><ul>'+gaps(c.evidence_gaps)+'</ul>'+
-        '<div class="label">Scenario policy</div><pre>'+esc(JSON.stringify(c.scenario_framework,null,2))+'</pre>'+
+        '<div class="label">Scenario policy</div><div class="scenarioGrid">'+scenario(c.scenario_framework)+'</div>'+
         '<div class="muted">'+esc(c.rationale)+'</div><div style="margin-top:8px" class="red"><strong>trade_eligible = '+esc(c.trade_eligible)+'</strong></div>'+
       '</article>';
     }).join(''):'<div class="card muted">No Opportunity Cards available.</div>';
