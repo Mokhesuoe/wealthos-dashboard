@@ -16,7 +16,7 @@ input,button{font:inherit}.input{width:100%;background:#091625;border:1px solid 
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}.metric .value{font-size:23px;font-weight:800;margin-top:5px}
 .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.op{min-height:300px}.op h3{margin:5px 0 0;font-size:20px}.score{font-size:29px;font-weight:850}.divider{height:1px;background:var(--line);margin:12px 0}
 table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 7px;border-bottom:1px solid var(--line)}th{font-size:11px;text-transform:uppercase;color:var(--muted)}
-pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;padding:9px;border-radius:8px;border:1px solid var(--line);font-size:12px}.scenarioGrid{display:grid;gap:8px;margin:8px 0 12px}.scenarioItem{background:#081421;border:1px solid var(--line);border-radius:8px;padding:9px}.scenarioItem strong{display:inline-block;min-width:42px;text-transform:capitalize}.scenarioItem.bear strong{color:var(--red)}.scenarioItem.base strong{color:var(--cyan)}.scenarioItem.bull strong{color:var(--green)}
+pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;padding:9px;border-radius:8px;border:1px solid var(--line);font-size:12px}.scenarioGrid{display:grid;gap:8px;margin:8px 0 12px}.scenarioItem{background:#081421;border:1px solid var(--line);border-radius:8px;padding:9px}.scenarioItem strong{display:inline-block;min-width:42px;text-transform:capitalize}.scenarioItem.bear strong{color:var(--red)}.scenarioItem.base strong{color:var(--cyan)}.scenarioItem.bull strong{color:var(--green)}.challengeBox{margin:10px 0;padding:11px;border:1px solid #6f2a34;background:#241118;border-radius:9px}.challengeBox .label{color:#ff9ba3}
 .qr{background:white;padding:10px;border-radius:10px;max-width:220px;display:block;margin:12px auto}.top{margin-bottom:14px}
 @media(max-width:950px){.metrics,.cards{grid-template-columns:1fr 1fr}}@media(max-width:620px){.metrics,.cards{grid-template-columns:1fr}.shell{padding:12px}}
 </style>
@@ -123,6 +123,13 @@ function entries(obj){return Object.entries(obj||{}).map(([k,v])=>'<li><strong>'
 function gaps(a){return (a||[]).map(v=>'<li>'+esc(v)+'</li>').join('')||'<li class="muted">None recorded</li>'}
 function scenario(obj){const x=obj||{};return ['bear','base','bull'].filter(k=>x[k]).map(k=>'<div class="scenarioItem '+k+'"><strong>'+esc(k)+'</strong> '+esc(x[k])+'</div>').join('')||'<div class="scenarioItem muted">No validated scenario model yet.</div>'}
 function stateClass(status,failures=0){if(Number(failures)>0)return 'red';const s=String(status||'').toLowerCase();if(s==='completed'||s==='success')return 'green';if(s==='skipped'||s==='partial'||s==='pending')return 'amber';return 'cyan'}
+function challenge(obj){
+  if(!obj||!Object.keys(obj).length)return '';
+  const why=gaps(obj.why_not_buy||[]);
+  const change=gaps(obj.what_would_change_my_mind||[]);
+  const flags=entries(obj.risk_flags||{});
+  return '<div class="challengeBox"><div class="label">Devil\'s Advocate · Why not act?</div><ul>'+why+'</ul><div class="label">What would change the case?</div><ul>'+change+'</ul><div class="label">Risk flags</div><ul>'+flags+'</ul></div>';
+}
 
 async function membership(){
   const {data,error}=await supabase.from('wealthos_access').select('role,active,require_mfa').maybeSingle();
@@ -200,7 +207,7 @@ async function loadDashboard(){
       latest('feature_runs','started_at,status,instruments_considered,instruments_ready'),
       latest('evidence_runs','started_at,status,macro_success_count,macro_failure_count,sec_success_count,sec_failure_count,trade_eligible'),
       latest('fundamental_runs','started_at,status,issuer_success_count,issuer_failure_count,fact_count,trade_eligible'),
-      supabase.from('opportunity_decision_cards').select('id,instrument_id,as_of,research_status,research_priority_score,confidence,evidence_reliability_score,supporting_evidence,counter_evidence,evidence_gaps,scenario_framework,rationale,data_eligible,trade_eligible').order('as_of',{ascending:false}).limit(20)
+      supabase.from('opportunity_decision_cards').select('id,instrument_id,as_of,card_version,research_status,research_priority_score,confidence,evidence_reliability_score,supporting_evidence,counter_evidence,evidence_gaps,scenario_framework,devils_advocate,rationale,data_eligible,trade_eligible').order('as_of',{ascending:false}).limit(20)
     ]);
     if(cards.error) throw cards.error;
     const ids=[...new Set((cards.data||[]).map(c=>c.instrument_id))];
@@ -233,7 +240,7 @@ async function loadDashboard(){
         '<div class="row space"><div><div class="label">Research priority</div><div class="score">'+num(c.research_priority_score)+'</div></div><div><div class="label">Confidence</div><strong>'+pct(c.confidence)+'</strong><br><span class="muted">Evidence '+pct(c.evidence_reliability_score)+'</span></div></div>'+
         '<div class="divider"></div><div class="label">Supporting evidence</div><ul>'+entries(c.supporting_evidence)+'</ul>'+
         '<div class="label">Counter evidence</div><ul>'+entries(c.counter_evidence)+'</ul>'+
-        '<div class="label">Evidence gaps</div><ul>'+gaps(c.evidence_gaps)+'</ul>'+
+        '<div class="label">Evidence gaps</div><ul>'+gaps(c.evidence_gaps)+'</ul>'+challenge(c.devils_advocate)+
         '<div class="label">Scenario policy</div><div class="scenarioGrid">'+scenario(c.scenario_framework)+'</div>'+
         '<div class="muted">'+esc(c.rationale)+'</div><div style="margin-top:8px" class="red"><strong>trade_eligible = '+esc(c.trade_eligible)+'</strong></div>'+
       '</article>';
