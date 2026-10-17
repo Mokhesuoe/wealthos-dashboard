@@ -235,7 +235,7 @@ async function loadDashboard(){
       const i=im.get(c.instrument_id)||{};
       const statusClass=c.research_status==='WATCH'||c.research_status==='INVESTIGATE'?'amber':c.research_status==='INSUFFICIENT_DATA'?'red':'cyan';
       return '<article class="card op">'+
-        '<div class="row space"><div><div class="label">'+esc(i.asset_class||'instrument')+'</div><h3>'+esc(i.symbol||c.instrument_id)+'</h3><div class="muted">'+esc(i.name||'')+'</div></div><span class="badge '+statusClass+'">'+esc(c.research_status)+'</span></div>'+
+        '<div class="row space"><div><div class="label">'+esc(i.asset_class||'instrument')+' · <span data-role="card_version_label">'+esc(c.card_version||'legacy')+'</span></div><h3>'+esc(i.symbol||c.instrument_id)+'</h3><div class="muted">'+esc(i.name||'')+'</div></div><span class="badge '+statusClass+'">'+esc(c.research_status)+'</span></div>'+
         '<div class="divider"></div>'+
         '<div class="row space"><div><div class="label">Research priority</div><div class="score">'+num(c.research_priority_score)+'</div></div><div><div class="label">Confidence</div><strong>'+pct(c.confidence)+'</strong><br><span class="muted">Evidence '+pct(c.evidence_reliability_score)+'</span></div></div>'+
         '<div class="divider"></div><div class="label">Supporting evidence</div><ul>'+entries(c.supporting_evidence)+'</ul>'+
