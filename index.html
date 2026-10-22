@@ -77,6 +77,9 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="card metric"><div class="label">Latest feature run</div><div id="featureState" class="value">—</div><div id="featureMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">Evidence layer</div><div id="evidenceState" class="value">—</div><div id="evidenceMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">Fundamentals</div><div id="fundState" class="value">—</div><div id="fundMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Valuation layer</div><div id="valuationState" class="value">—</div><div id="valuationMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Official event risk</div><div id="eventState" class="value">—</div><div id="eventMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">v0.4 acceptance gate</div><div id="acceptState" class="value">—</div><div id="acceptMeta" class="muted"></div></div>
     </div>
 
     <div class="row space"><h2>Opportunity Decision Cards</h2><button id="refresh" class="btn">Refresh</button></div>
@@ -199,14 +202,22 @@ async function latest(table,cols='*'){
   if(error) throw error;
   return data;
 }
+async function latestAsOf(table,cols='*'){
+  const {data,error}=await supabase.from(table).select(cols).order('as_of',{ascending:false}).limit(1).maybeSingle();
+  if(error) throw error;
+  return data;
+}
 async function loadDashboard(){
   $('cards').innerHTML='<div class="card muted">Loading verified research…</div>';
   try{
-    const [ing,feat,evid,fund,cards]=await Promise.all([
+    const [ing,feat,evid,fund,valuation,eventRisk,acceptance,cards]=await Promise.all([
       latest('ingestion_runs','started_at,status,success_count,failure_count,data_eligible_count,trade_eligible'),
       latest('feature_runs','started_at,status,instruments_considered,instruments_ready'),
       latest('evidence_runs','started_at,status,macro_success_count,macro_failure_count,sec_success_count,sec_failure_count,trade_eligible'),
       latest('fundamental_runs','started_at,status,issuer_success_count,issuer_failure_count,fact_count,trade_eligible'),
+      latestAsOf('valuation_snapshots','as_of,model_version,evidence_coverage_score,reliability_score,trade_eligible'),
+      latestAsOf('event_risk_snapshots','as_of,model_version,evidence_coverage_score,reliability_score,data_eligible,trade_eligible'),
+      latest('research_acceptance_runs','started_at,finished_at,status,card_version,fresh_feature_count,valuation_count,card_count,minimum_confidence,minimum_evidence_reliability,trade_eligible'),
       supabase.from('opportunity_decision_cards').select('id,instrument_id,as_of,card_version,research_status,research_priority_score,confidence,evidence_reliability_score,supporting_evidence,counter_evidence,evidence_gaps,scenario_framework,devils_advocate,rationale,data_eligible,trade_eligible').order('as_of',{ascending:false}).limit(20)
     ]);
     if(cards.error) throw cards.error;
@@ -227,6 +238,24 @@ async function loadDashboard(){
     $('fundState').textContent=fund?.status?.toUpperCase()||'—';
     $('fundState').className='value '+stateClass(fund?.status);
     $('fundMeta').textContent=fund?(fund.issuer_success_count+' issuers · '+fund.fact_count+' facts · '+dt(fund.started_at)):'No run';
+
+    $('valuationState').textContent=valuation?'READY':'AWAITING';
+    $('valuationState').className='value '+(valuation?'green':'amber');
+    $('valuationMeta').textContent=valuation
+      ? ('Coverage '+pct(valuation.evidence_coverage_score)+' · Reliability '+pct(valuation.reliability_score)+' · '+dt(valuation.as_of))
+      : 'Awaiting first fresh-session v0.4 valuation snapshot';
+
+    $('eventState').textContent=eventRisk?.data_eligible?'READY':'AWAITING';
+    $('eventState').className='value '+(eventRisk?.data_eligible?'green':'amber');
+    $('eventMeta').textContent=eventRisk
+      ? ('Coverage '+pct(eventRisk.evidence_coverage_score)+' · Reliability '+pct(eventRisk.reliability_score)+' · '+dt(eventRisk.as_of))
+      : 'No official event-risk snapshot';
+
+    $('acceptState').textContent=acceptance?.status?.toUpperCase()||'ARMED';
+    $('acceptState').className='value '+(acceptance?.status==='passed'?'green':acceptance?.status==='failed'?'red':'amber');
+    $('acceptMeta').textContent=acceptance
+      ? ((acceptance.card_version||'v0.4')+' · '+(acceptance.valuation_count||0)+' valuations · '+(acceptance.card_count||0)+' cards · '+dt(acceptance.started_at))
+      : 'Waiting for 3 fresh AAPL / SPY / QQQ features during the live U.S. session';
 
     const latestByInstrument=new Map();
     for(const c of cards.data||[]) if(!latestByInstrument.has(c.instrument_id)) latestByInstrument.set(c.instrument_id,c);
