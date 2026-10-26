@@ -176,7 +176,8 @@ async function route(){
   if(!m?.active){show('accessPanel');return}
   const {data:aal,error}=await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
   if(error){$('authError').textContent=error.message;show('authPanel');return}
-  if(m.require_mfa && aal.currentLevel!=='aal2'){
+  // MFA is mandatory for the private WealthOS application even if a membership flag is misconfigured.
+  if(aal.currentLevel!=='aal2'){
     const factor=await verifiedFactor();
     show(factor?'mfaChallengePanel':'mfaEnrollPanel');
     return;
