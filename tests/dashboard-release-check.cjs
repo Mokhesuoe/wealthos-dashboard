@@ -39,7 +39,7 @@ console.log('PASS financial arithmetic sanity checks');
 
 // Execute the actual dashboard calculator against a minimal DOM stub.
 // This catches broken input IDs, event wiring, and integration regressions.
-const ids=['wl','we','wd','wc','wb','wr','wg','wy','wf','wn','wi','wx','wq','wt','wealthError'];
+const ids=['wl','we','wd','wc','wb','wr','wg','wy','wf','wn','wi','wx','wq','wt','wealthError','wealthExport'];
 const defaults={wl:'100',we:'0',wd:'0',wc:'10',wb:'0',wr:'0',wg:'0',wy:'1',wf:'0'};
 const nodes=Object.fromEntries(ids.map(id=>[id,{
   value: defaults[id] ?? '', textContent:'', innerHTML:'',
