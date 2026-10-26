@@ -103,8 +103,8 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <label class="label">Monthly business distribution (M)<input class="input" type="number" id="wb" value="0" min="0"></label>
 <label class="label">Portfolio annual return (%)<input class="input" type="number" id="wr" value="8" min="-99.9" max="200"></label>
 <label class="label">Business equity growth (%)<input class="input" type="number" id="wg" value="0" min="-99.9" max="200"></label>
-<label class="label">Years<input class="input" type="number" id="wy" value="20" min="1" max="100"></label>
-</div><div id="wealthError" class="red" role="alert"></div><div class="metrics"><div class="card metric"><div class="label">Projected nominal net wealth</div><div class="value" id="wn">—</div></div><div class="card metric"><div class="label">Real net wealth (4% inflation)</div><div class="value" id="wi">—</div></div><div class="card metric"><div class="label">Gap to M1 billion</div><div class="value" id="wx">—</div></div><div class="card metric"><div class="label">Required monthly contribution</div><div class="value" id="wq">—</div></div></div><div style="overflow:auto;max-height:260px"><table><thead><tr><th>Year</th><th>Liquid assets</th><th>Business equity</th><th>Net wealth</th></tr></thead><tbody id="wt"></tbody></table></div></section>
+<label class="label">Years<input class="input" type="number" id="wy" value="20" min="1" max="100"></label><label class="label">Inflation assumption (%)<input class="input" type="number" id="wf" value="4" min="-99.9" max="100"></label>
+</div><div id="wealthError" class="red" role="alert"></div><div class="metrics"><div class="card metric"><div class="label">Projected nominal net wealth</div><div class="value" id="wn">—</div></div><div class="card metric"><div class="label">Real net wealth (selected inflation)</div><div class="value" id="wi">—</div></div><div class="card metric"><div class="label">Gap to M1 billion</div><div class="value" id="wx">—</div></div><div class="card metric"><div class="label">Required monthly contribution</div><div class="value" id="wq">—</div></div></div><div style="overflow:auto;max-height:260px"><table><thead><tr><th>Year</th><th>Liquid assets</th><th>Business equity</th><th>Net wealth</th></tr></thead><tbody id="wt"></tbody></table></div></section>
     <div class="card" style="margin-top:14px">
       <h2>Governance state</h2>
       <table><tbody>
@@ -348,19 +348,19 @@ async function loadDashboard(){
 
 
 // Capital Intelligence: browser-only, read-only, no API writes or broker calls.
-const WIDS=['wl','we','wd','wc','wb','wr','wg','wy'];
+const WIDS=['wl','we','wd','wc','wb','wr','wg','wy','wf'];
 function wealthCalc(){
  try{
  const v=WIDS.map(id=>{if($(id).value.trim()==='')throw Error('Complete all inputs');const x=Number($(id).value);if(!Number.isFinite(x))throw Error('Invalid number');return x});
- const [a,b,d,c,s,r,g,y]=v;
- if([a,b,d,c,s].some(n=>n<0)||r<=-100||g<=-100||r>200||g>200||!Number.isInteger(y)||y<1||y>100)throw Error('Inputs outside supported bounds');
+ const [a,b,d,c,s,r,g,y,inflation]=v;
+ if([a,b,d,c,s].some(n=>n<0)||r<=-100||g<=-100||r>200||g>200||inflation<=-100||inflation>100||!Number.isInteger(y)||y<1||y>100)throw Error('Inputs outside supported bounds');
  const mr=(1+r/100)**(1/12)-1,mg=(1+g/100)**(1/12)-1,n=y*12;
  let liquid=a,equity=b;const rows=[];
  for(let i=1;i<=n;i++){liquid=liquid*(1+mr)+c+s;equity*=1+mg;if(i%12===0)rows.push([i/12,liquid,equity,liquid+equity-d]);}
  const net=liquid+equity-d,annuity=Math.abs(mr)<1e-12?n:((1+mr)**n-1)/mr;
  const withoutPersonal=net-c*annuity,required=Math.max(0,(1e9-withoutPersonal)/annuity);
  const fmt=x=>'M'+Math.round(x).toLocaleString('en-US');
- $('wn').textContent=fmt(net);$('wi').textContent=fmt(net/(1.04**y));$('wx').textContent=fmt(Math.max(0,1e9-net));$('wq').textContent=fmt(required);
+ $('wn').textContent=fmt(net);$('wi').textContent=fmt(net/((1+inflation/100)**y));$('wx').textContent=fmt(Math.max(0,1e9-net));$('wq').textContent=fmt(required);
  $('wt').innerHTML=rows.map(q=>'<tr>'+q.map((x,i)=>'<td>'+(i?fmt(x):x)+'</td>').join('')+'</tr>').join('');
  $('wealthError').textContent='';
  }catch(err){$('wealthError').textContent=err.message;['wn','wi','wx','wq'].forEach(id=>$(id).textContent='—');$('wt').textContent='';}
