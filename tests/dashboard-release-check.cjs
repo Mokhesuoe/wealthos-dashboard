@@ -64,4 +64,7 @@ assert.equal(nodes.wn.textContent,'—','Invalid inputs clear stale outputs');
 nodes.wr.value='0';nodes.wd.value='0';nodes.wl.value='1e308';nodes.wc.value='1e308';nodes.wy.value='100';nodes.wr.input();
 assert.notEqual(nodes.wealthError.textContent,'','Overflow must not be displayed as projected wealth');
 assert.equal(nodes.wn.textContent,'—','Overflow clears projected wealth');
+nodes.wl.value='100';nodes.wc.value='0';nodes.wb.value='0';nodes.wr.value='0';nodes.wy.value='100';nodes.wf.value='-99.999';nodes.wr.input();
+assert.notEqual(nodes.wealthError.textContent,'','Extreme inflation causing nonfinite real wealth must be rejected');
+assert.equal(nodes.wi.textContent,'—','Invalid real-wealth projection must not render as infinity');
 console.log('PASS actual browser calculator DOM integration');
