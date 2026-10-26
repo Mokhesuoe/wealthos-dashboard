@@ -36,3 +36,26 @@ near(calc({liquid:1000,r:-20}).net,800);
 near(calc({liquid:100,inf:0}).real,100);
 assert(calc({}).needed>0);
 console.log('PASS financial arithmetic sanity checks');
+
+// Execute the actual dashboard calculator against a minimal DOM stub.
+// This catches broken input IDs, event wiring, and integration regressions.
+const ids=['wl','we','wd','wc','wb','wr','wg','wy','wf','wn','wi','wx','wq','wt','wealthError'];
+const defaults={wl:'100',we:'0',wd:'0',wc:'10',wb:'0',wr:'0',wg:'0',wy:'1',wf:'0'};
+const nodes=Object.fromEntries(ids.map(id=>[id,{
+  value: defaults[id] ?? '', textContent:'', innerHTML:'',
+  addEventListener(event,callback){this[event]=callback;}
+}]));
+const from=source.indexOf("const WIDS=");
+const to=source.indexOf("$('refresh').onclick=loadDashboard;",from);
+assert(from>=0 && to>from,'Capital calculator can be extracted from dashboard module');
+const ctx=vm.createContext({document:{getElementById:id=>nodes[id]},console});
+vm.runInContext('const $=id=>document.getElementById(id);\n'+source.slice(from,to),ctx);
+assert.equal(nodes.wn.textContent,'M220','Actual dashboard zero-rate cash recurrence');
+assert.equal(nodes.wi.textContent,'M220','Actual dashboard inflation setting');
+assert.equal(nodes.wx.textContent,'M999,999,780','Gap calculation');
+nodes.wd.value='70';nodes.wd.input();
+assert.equal(nodes.wn.textContent,'M150','Debt subtraction on user input');
+nodes.wr.value='-100';nodes.wr.input();
+assert.notEqual(nodes.wealthError.textContent,'','Rate validation is enforced');
+assert.equal(nodes.wn.textContent,'—','Invalid inputs clear stale outputs');
+console.log('PASS actual browser calculator DOM integration');
