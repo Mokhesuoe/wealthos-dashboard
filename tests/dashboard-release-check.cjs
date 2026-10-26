@@ -58,4 +58,7 @@ assert.equal(nodes.wn.textContent,'M150','Debt subtraction on user input');
 nodes.wr.value='-100';nodes.wr.input();
 assert.notEqual(nodes.wealthError.textContent,'','Rate validation is enforced');
 assert.equal(nodes.wn.textContent,'—','Invalid inputs clear stale outputs');
+nodes.wr.value='0';nodes.wd.value='0';nodes.wl.value='1e308';nodes.wc.value='1e308';nodes.wy.value='100';nodes.wr.input();
+assert.notEqual(nodes.wealthError.textContent,'','Overflow must not be displayed as projected wealth');
+assert.equal(nodes.wn.textContent,'—','Overflow clears projected wealth');
 console.log('PASS actual browser calculator DOM integration');
