@@ -363,8 +363,10 @@ function wealthCalc(){
  const net=liquid+equity-d,annuity=Math.abs(mr)<1e-12?n:((1+mr)**n-1)/mr;
  if(![liquid,equity,net,annuity].every(Number.isFinite)||annuity<=0)throw Error('Projection exceeds supported numerical range');
  const withoutPersonal=net-c*annuity,required=Math.max(0,(1e9-withoutPersonal)/annuity);
+ const real=net/((1+inflation/100)**y),gap=Math.max(0,1e9-net);
+ if(![withoutPersonal,required,real,gap].every(Number.isFinite))throw Error('Projection exceeds supported numerical range');
  const fmt=x=>'M'+Math.round(x).toLocaleString('en-US');
- $('wn').textContent=fmt(net);$('wi').textContent=fmt(net/((1+inflation/100)**y));$('wx').textContent=fmt(Math.max(0,1e9-net));$('wq').textContent=fmt(required);
+ $('wn').textContent=fmt(net);$('wi').textContent=fmt(real);$('wx').textContent=fmt(gap);$('wq').textContent=fmt(required);
  $('wt').innerHTML=rows.map(q=>'<tr>'+q.map((x,i)=>'<td>'+(i?fmt(x):x)+'</td>').join('')+'</tr>').join('');
  $('wealthError').textContent='';
  }catch(err){wealthAnnualRows=[];$('wealthError').textContent=err.message;['wn','wi','wx','wq'].forEach(id=>$(id).textContent='—');$('wt').textContent='';}
