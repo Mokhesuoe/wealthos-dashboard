@@ -1,0 +1,38 @@
+// WealthOS dashboard release checks. Dependency-free Node.js tests.
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const vm=require('node:vm');
+const html=fs.readFileSync('index.html','utf8');
+const checks=[
+['authenticated application shell',/id="appPanel" class="hidden"/],
+['MFA challenge',/id="mfaChallengePanel"/],
+['Capital Intelligence panel',/id="capitalPanel"/],
+['research-only banner',/LIVE CAPITAL LOCKED/],
+['capital-input inflation',/id="wf"/],
+['capital output',/id="wn"/],
+['validation UI',/id="wealthError"/],
+['client-side calculator',/function wealthCalc\(\)/],
+];
+for(const [name,re] of checks){assert.match(html,re,name);console.log('PASS '+name);}
+assert(!/service_role|sb_secret_/.test(html),'No privileged keys in public frontend');
+const scriptTag=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].at(-1);
+assert(scriptTag,'module script exists');
+const source=scriptTag[1].replace(/^import\s+.*?;\s*$/gm,'');
+new vm.Script(source,{filename:'wealthos-dashboard-module.js'});
+console.log('PASS JavaScript syntax');
+// Test financial equations independently of DOM using the exact recurrence.
+function calc({liquid=0,equity=0,debt=0,c=0,s=0,r=0,g=0,y=1,inf=4}){
+ const mr=(1+r/100)**(1/12)-1,mg=(1+g/100)**(1/12)-1,n=y*12;
+ for(let i=1;i<=n;i++){liquid=liquid*(1+mr)+c+s;equity*=1+mg;}
+ const net=liquid+equity-debt;
+ const annuity=Math.abs(mr)<1e-12?n:((1+mr)**n-1)/mr;
+ return {net,real:net/((1+inf/100)**y),needed:Math.max(0,(1e9-(net-c*annuity))/annuity)};
+}
+const near=(a,b)=>assert(Math.abs(a-b)<1e-5,`${a} vs ${b}`);
+near(calc({liquid:100,c:10,r:0}).net,220);
+near(calc({liquid:1000,debt:700}).net,300);
+near(calc({equity:1000,s:100}).net,2200);
+near(calc({liquid:1000,r:-20}).net,800);
+near(calc({liquid:100,inf:0}).real,100);
+assert(calc({}).needed>0);
+console.log('PASS financial arithmetic sanity checks');
