@@ -85,6 +85,16 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
     <div class="row space"><h2>Opportunity Decision Cards</h2><button id="refresh" class="btn">Refresh</button></div>
     <div id="cards" class="cards"></div>
 
+    <div style="margin-top:18px" class="row space"><h2>v0.5 Decision Intelligence</h2><span class="badge amber">UNVALIDATED RESEARCH PRIORS</span></div>
+    <div class="callout"><strong>Forward validation has started.</strong> These return ranges are transparent baseline priors for testing—not investment forecasts. They cannot create live orders.</div>
+    <div class="metrics">
+      <div class="card metric"><div class="label">Expected-return priors</div><div id="priorState" class="value">—</div><div id="priorMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Paper decisions</div><div id="paperState" class="value">—</div><div id="paperMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Forward outcomes</div><div id="outcomeState" class="value">—</div><div id="outcomeMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Strategy Lab</div><div id="labState" class="value">—</div><div id="labMeta" class="muted"></div></div>
+    </div>
+    <div id="v05Cards" class="cards"></div>
+
     <div class="card" style="margin-top:14px">
       <h2>Governance state</h2>
       <table><tbody>
@@ -210,7 +220,7 @@ async function latestAsOf(table,cols='*'){
 async function loadDashboard(){
   $('cards').innerHTML='<div class="card muted">Loading verified research…</div>';
   try{
-    const [ing,feat,evid,fund,valuation,eventRisk,acceptance,cards]=await Promise.all([
+    const [ing,feat,evid,fund,valuation,eventRisk,acceptance,cards,priors,paperDecisions,outcomes,lab]=await Promise.all([
       latest('ingestion_runs','started_at,status,success_count,failure_count,data_eligible_count,trade_eligible'),
       latest('feature_runs','started_at,status,instruments_considered,instruments_ready'),
       latest('evidence_runs','started_at,status,macro_success_count,macro_failure_count,sec_success_count,sec_failure_count,trade_eligible'),
@@ -218,10 +228,17 @@ async function loadDashboard(){
       latestAsOf('valuation_snapshots','as_of,model_version,evidence_coverage_score,reliability_score,trade_eligible'),
       latestAsOf('event_risk_snapshots','as_of,model_version,evidence_coverage_score,reliability_score,data_eligible,trade_eligible'),
       latest('research_acceptance_runs','started_at,finished_at,status,card_version,fresh_feature_count,valuation_count,card_count,minimum_confidence,minimum_evidence_reliability,trade_eligible'),
-      supabase.from('opportunity_decision_cards').select('id,instrument_id,as_of,card_version,research_status,research_priority_score,confidence,evidence_reliability_score,supporting_evidence,counter_evidence,evidence_gaps,scenario_framework,devils_advocate,rationale,data_eligible,trade_eligible').order('as_of',{ascending:false}).limit(20)
+      supabase.from('opportunity_decision_cards').select('id,instrument_id,as_of,card_version,research_status,research_priority_score,confidence,evidence_reliability_score,supporting_evidence,counter_evidence,evidence_gaps,scenario_framework,devils_advocate,rationale,data_eligible,trade_eligible').order('as_of',{ascending:false}).limit(20),
+      supabase.from('expected_return_snapshots').select('id,instrument_id,as_of,model_version,reference_price,base_return_pct,bull_return_pct,bear_return_pct,expected_downside_pct,confidence,evidence_coverage_score,reliability_score,model_validated,validation_status,components,data_eligible,trade_eligible').eq('model_version','expected_return_prior_v0.5').order('as_of',{ascending:false}).limit(20),
+      supabase.from('paper_decisions').select('id,instrument_id,expected_return_snapshot_id,decision_at,decision_type,reference_price,model_validated,data_eligible,trade_eligible,rationale').eq('decision_version','paper_decision_v0.5').order('decision_at',{ascending:false}).limit(20),
+      supabase.from('paper_decision_outcomes').select('id,status,horizon_days,target_at,return_pct').order('target_at',{ascending:false}).limit(200),
+      latest('strategy_lab_runs','started_at,status,strategy_name,strategy_version,test_type,sample_count,decision_count,oos_validated,promotion_eligible,trade_eligible,details')
     ]);
     if(cards.error) throw cards.error;
-    const ids=[...new Set((cards.data||[]).map(c=>c.instrument_id))];
+    if(priors.error) throw priors.error;
+    if(paperDecisions.error) throw paperDecisions.error;
+    if(outcomes.error) throw outcomes.error;
+    const ids=[...new Set([...(cards.data||[]).map(c=>c.instrument_id),...(priors.data||[]).map(x=>x.instrument_id),...(paperDecisions.data||[]).map(x=>x.instrument_id)])];
     const iq=ids.length?await supabase.from('instruments').select('id,symbol,name,asset_class').in('id',ids):{data:[],error:null};
     if(iq.error) throw iq.error;
     const im=new Map((iq.data||[]).map(i=>[i.id,i]));
@@ -256,6 +273,41 @@ async function loadDashboard(){
     $('acceptMeta').textContent=acceptance
       ? ((acceptance.card_version||'v0.4')+' · '+(acceptance.valuation_count||0)+' valuations · '+(acceptance.card_count||0)+' cards · '+dt(acceptance.started_at))
       : 'Waiting for 3 fresh AAPL / SPY / QQQ features during the live U.S. session';
+
+    const latestPriors=new Map();
+    for(const p of priors.data||[]) if(!latestPriors.has(p.instrument_id)) latestPriors.set(p.instrument_id,p);
+    const latestPaper=new Map();
+    for(const p of paperDecisions.data||[]) if(!latestPaper.has(p.instrument_id)) latestPaper.set(p.instrument_id,p);
+    const outcomeRows=outcomes.data||[];
+    const scored=outcomeRows.filter(x=>x.status==='scored').length;
+    const pending=outcomeRows.filter(x=>x.status==='pending').length;
+
+    $('priorState').textContent=latestPriors.size?String(latestPriors.size):'0';
+    $('priorState').className='value '+(latestPriors.size?'amber':'cyan');
+    $('priorMeta').textContent=latestPriors.size?'Research-only 12-month priors · model unvalidated':'No v0.5 priors yet';
+    $('paperState').textContent=latestPaper.size?String(latestPaper.size):'0';
+    $('paperState').className='value '+(latestPaper.size?'amber':'cyan');
+    $('paperMeta').textContent=latestPaper.size?'Latest decisions remain non-executable':'No paper decisions yet';
+    $('outcomeState').textContent=scored+' SCORED';
+    $('outcomeState').className='value '+(scored?'green':'amber');
+    $('outcomeMeta').textContent=pending+' pending forward observations';
+    $('labState').textContent=lab?.status?String(lab.status).replaceAll('_',' ').toUpperCase():'—';
+    $('labState').className='value '+(lab?.oos_validated?'green':'amber');
+    $('labMeta').textContent=lab?(lab.strategy_version+' · OOS validated: '+lab.oos_validated+' · promotion: '+lab.promotion_eligible):'No Strategy Lab run';
+
+    $('v05Cards').innerHTML=[...latestPriors.values()].map(p=>{
+      const i=im.get(p.instrument_id)||{};
+      const d=latestPaper.get(p.instrument_id);
+      return '<article class="card op">'+
+        '<div class="row space"><div><div class="label">v0.5 · '+esc(p.validation_status)+'</div><h3>'+esc(i.symbol||p.instrument_id)+'</h3><div class="muted">'+esc(i.name||'')+'</div></div><span class="badge amber">'+esc(d?.decision_type||'WATCH')+'</span></div>'+
+        '<div class="divider"></div>'+
+        '<div class="row space"><div><div class="label">Base prior</div><div class="score">'+pct(p.base_return_pct)+'</div></div><div><div class="label">Range</div><strong class="red">'+pct(p.bear_return_pct)+'</strong> → <strong class="green">'+pct(p.bull_return_pct)+'</strong><br><span class="muted">Downside '+pct(p.expected_downside_pct)+'</span></div></div>'+
+        '<div class="divider"></div><div class="label">Model confidence</div><strong>'+pct(p.confidence)+'</strong><span class="muted"> · Evidence '+pct(p.evidence_coverage_score)+' · Reliability '+pct(p.reliability_score)+'</span>'+
+        '<div class="label" style="margin-top:10px">Transparent components</div><ul>'+entries(p.components)+'</ul>'+
+        '<div class="muted">'+esc(d?.rationale||'Forward validation is being collected.')+'</div>'+
+        '<div style="margin-top:8px" class="red"><strong>validated = '+esc(p.model_validated)+' · trade_eligible = '+esc(p.trade_eligible)+'</strong></div>'+
+      '</article>';
+    }).join('')||'<div class="card muted">No v0.5 research priors available yet.</div>';
 
     const latestByInstrument=new Map();
     for(const c of cards.data||[]) if(!latestByInstrument.has(c.instrument_id)) latestByInstrument.set(c.instrument_id,c);
