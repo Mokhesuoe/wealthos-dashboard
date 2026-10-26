@@ -15,6 +15,9 @@ const checks=[
 ];
 for(const [name,re] of checks){assert.match(html,re,name);console.log('PASS '+name);}
 assert(!/service_role|sb_secret_/.test(html),'No privileged keys in public frontend');
+assert.match(html,/if\(aal\.currentLevel!=='aal2'\)/,'Every authenticated account must reach MFA AAL2');
+assert.doesNotMatch(html,/if\(m\.require_mfa\s*&&/,'MFA must never rely on optional membership flag');
+console.log('PASS mandatory MFA enforcement checks');
 const scriptTag=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].at(-1);
 assert(scriptTag,'module script exists');
 const source=scriptTag[1].replace(/^import\s+.*?;\s*$/gm,'');
