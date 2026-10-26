@@ -102,7 +102,10 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
         <tr><td>Broker connected</td><td>No</td></tr>
         <tr><td>Live-mode database lock</td><td class="green">Active</td></tr>
         <tr><td>Opportunity card trade eligibility</td><td class="red">False</td></tr>
-        <tr><td>Authenticated research access</td><td class="green">MFA + access register</td></tr>
+        <tr><td>v0.5 expected-return model validated</td><td class="amber">False — forward evidence collecting</td></tr>
+        <tr><td>Strategy Lab promotion eligibility</td><td class="red">False</td></tr>
+        <tr><td>Historical data verification</td><td class="green">Dual-source Tiingo + Twelve Data</td></tr>
+        <tr><td>Authenticated research access</td><td class="green">MFA + WealthOS access register</td></tr>
       </tbody></table>
     </div>
   </section>
@@ -232,7 +235,7 @@ async function loadDashboard(){
       supabase.from('expected_return_snapshots').select('id,instrument_id,as_of,model_version,reference_price,base_return_pct,bull_return_pct,bear_return_pct,expected_downside_pct,confidence,evidence_coverage_score,reliability_score,model_validated,validation_status,components,data_eligible,trade_eligible').eq('model_version','expected_return_prior_v0.5').order('as_of',{ascending:false}).limit(20),
       supabase.from('paper_decisions').select('id,instrument_id,expected_return_snapshot_id,decision_at,decision_type,reference_price,model_validated,data_eligible,trade_eligible,rationale').eq('decision_version','paper_decision_v0.5').order('decision_at',{ascending:false}).limit(20),
       supabase.from('paper_decision_outcomes').select('id,status,horizon_days,target_at,return_pct').order('target_at',{ascending:false}).limit(200),
-      latest('strategy_lab_runs','started_at,status,strategy_name,strategy_version,test_type,sample_count,decision_count,oos_validated,promotion_eligible,trade_eligible,details')
+      latest('strategy_lab_runs','started_at,finished_at,status,strategy_name,strategy_version,test_type,sample_count,decision_count,annualized_return_pct,benchmark_return_pct,annualized_volatility_pct,max_drawdown_pct,hit_rate_pct,train_start,train_end,test_start,test_end,oos_validated,promotion_eligible,trade_eligible,details')
     ]);
     if(cards.error) throw cards.error;
     if(priors.error) throw priors.error;
@@ -293,7 +296,9 @@ async function loadDashboard(){
     $('outcomeMeta').textContent=pending+' pending forward observations';
     $('labState').textContent=lab?.status?String(lab.status).replaceAll('_',' ').toUpperCase():'—';
     $('labState').className='value '+(lab?.oos_validated?'green':'amber');
-    $('labMeta').textContent=lab?(lab.strategy_version+' · OOS validated: '+lab.oos_validated+' · promotion: '+lab.promotion_eligible):'No Strategy Lab run';
+    $('labMeta').textContent=lab
+      ? (lab.strategy_version+' · '+(lab.annualized_return_pct==null?'No return metric':('Strategy '+pct(lab.annualized_return_pct)+' vs benchmark '+pct(lab.benchmark_return_pct)))+' · Max DD '+pct(lab.max_drawdown_pct)+' · promotion: '+lab.promotion_eligible)
+      : 'No Strategy Lab run';
 
     $('v05Cards').innerHTML=[...latestPriors.values()].map(p=>{
       const i=im.get(p.instrument_id)||{};
