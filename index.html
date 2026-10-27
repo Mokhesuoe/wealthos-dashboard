@@ -477,7 +477,8 @@ async function loadDashboard(){
       : 'No acceptance run visible to this session. Review RLS and scheduled gate activity.';
 
     const qr=qualityRun.error?null:qualityRun.data;
-    const todayNY=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const nyParts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
+    const todayNY=nyParts.year+'-'+nyParts.month+'-'+nyParts.day;
     const isSessionToday=qr?.session_date===todayNY;
     $('sessionQualityState').textContent=qualityRun.error?'QUERY ERROR':qr?(isSessionToday?'SESSION '+String(qr.status).toUpperCase():'HISTORICAL '+String(qr.status).toUpperCase()):'NO RECORDED CHECK';
     $('sessionQualityState').className='value '+(qr?.status==='failed'&&isSessionToday?'red':'amber');
