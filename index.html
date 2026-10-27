@@ -87,6 +87,13 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="card metric"><div class="label">v0.4 acceptance gate</div><div id="acceptState" class="value">—</div><div id="acceptMeta" class="muted"></div></div>
     </div>
 
+    <details class="card" id="researchDiagnosticsPanel" style="margin:0 0 16px">
+      <summary style="cursor:pointer"><strong>Research snapshot access diagnostics</strong> <span class="muted">— authenticated read-only check</span></summary>
+      <p class="muted">Run this if a snapshot is NOT VISIBLE. It checks only what your current authenticated session can read. It does not inspect privileged database records, expose tokens or change permissions.</p>
+      <button class="btn" type="button" id="snapshotDiagnose">Check my snapshot access</button>
+      <pre id="snapshotDiagnosticOutput" role="status">Not checked. Click the button to test.</pre>
+    </details>
+
     <div class="row space"><h2>Opportunity Decision Cards</h2><button id="refresh" class="btn">Refresh</button></div>
     <div id="cards" class="cards"></div>
 
@@ -522,6 +529,27 @@ async function loadDashboard(){
 }
 
 
+async function diagnoseSnapshotAccess(){
+  const out=$('snapshotDiagnosticOutput');
+  out.textContent='Checking authenticated read-only access…';
+  try{
+    const {data:authInfo,error:authErr}=await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if(authErr)throw authErr;
+    if(authInfo?.currentLevel!=='aal2'){out.textContent='BLOCKED: session MFA assurance is not AAL2.';return}
+    const tables=['valuation_snapshots','event_risk_snapshots'];
+    const lines=['AAL2 confirmed. Results reflect only this session’s RLS-visible rows.'];
+    for(const table of tables){
+      const {data,error,count,status}=await supabase.from(table)
+        .select('as_of,model_version',{count:'exact'})
+        .order('as_of',{ascending:false}).limit(1);
+      if(error)lines.push(table+': QUERY ERROR (HTTP '+status+', '+String(error.code||'unknown')+')');
+      else if(!data?.length)lines.push(table+': ZERO VISIBLE ROWS (RLS or filter; database may contain records)');
+      else lines.push(table+': '+count+' visible rows; newest '+data[0].as_of+'; version '+data[0].model_version);
+    }
+    out.textContent=lines.join('\n');
+  }catch(e){out.textContent='Diagnostic failed: '+String(e.code||e.message||'unknown error').slice(0,140)}
+}
+$('snapshotDiagnose').addEventListener('click',diagnoseSnapshotAccess);
 $('refresh').onclick=loadDashboard;
 async function signOut(){await supabase.auth.signOut();location.reload()}
 ['logout','accessLogout','enrollLogout','challengeLogout'].forEach(id=>$(id).onclick=signOut);
