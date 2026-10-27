@@ -12,7 +12,8 @@ function policyOf(input={}){
   throw Error('Set the assumed downside funding responsibility from 0% to 100% for all three opportunities');
  return {...p,downsideFundingSharePct:[...p.downsideFundingSharePct]};
 }
-function allocate({baseline,opportunities,diligence,policy}={}){
+function allocate({baseline,opportunities,diligence,policy,asOfDate}={}){
+ const asOf=asOfDate||new Date().toISOString().slice(0,10);
  const p=policyOf(policy);
  if(!baseline||typeof baseline!=='object'||!Number.isFinite(baseline.available)||baseline.available<0||!Number.isFinite(baseline.liquid)||baseline.liquid<0)
   throw Error('A valid v0.7 liquid-capital baseline is required');
@@ -23,7 +24,7 @@ function allocate({baseline,opportunities,diligence,policy}={}){
   const opportunity=creation.validate(raw);
   const cases=creation.evaluate(opportunity);
   const active=cases.status!=='NOT MODELLED';
-  const due=evidence.diligence(diligence[i]);
+  const due=evidence.diligence(diligence[i],asOf);
   const reserve=active?cases.stress.cumulativeShortfalls*(p.downsideFundingSharePct[i]/100):0;
   const committed=active?opportunity.ownerCapital:0;
   const needed=committed+reserve;
