@@ -44,4 +44,8 @@ The authenticated dashboard source includes a **local-only Capital Intelligence*
 
 **Financial correctness:** the calculator fails closed if projected nominal wealth, real wealth or required contributions become nonfinite; regression tests cover numerical overflow and extreme inflation assumptions.
 
-**Verification / release gates:** run `node tests/dashboard-release-check.cjs` in the repository root and confirm GitHub Actions passes. An authenticated browser journey, live hosting address, API RLS tests under real JWT assurance levels, and deployment provenance remain **unverified**. Do **not** consider the app production accepted based only on GitHub commits or static tests.
+**Verified automated release baseline (27 October 2026):** commit `118639028b29ef0c166aa57cf67faacd0a3aa253` passed GitHub's pre-deployment dashboard tests, Pages deployment, and post-deployment HTTPS smoke test. [Workflow evidence](https://github.com/Mokhesuoe/wealthos-dashboard/actions/runs/40435306391). The published static site is **https://mokhesuoe.github.io/wealthos-dashboard/**.
+
+**Privacy boundary:** GitHub Pages and this repository publicly expose the static HTML/JavaScript shell. Research data is intended to be gated by Supabase membership, AAL2 MFA and RLS, not by secret frontend source. A genuinely private hosting origin has **not** been implemented.
+
+**Outstanding release acceptance:** an actual authorized sign-in / TOTP challenge in a browser, staged AAL1-versus-AAL2 API authorization checks using legitimate test accounts, and multi-device user acceptance remain unverified. Do **not** mistake a passing static HTTP smoke test for a verified authenticated end-to-end journey.
