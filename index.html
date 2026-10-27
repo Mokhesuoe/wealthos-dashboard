@@ -78,6 +78,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 
     <div class="metrics">
       <div class="card metric"><div class="label">Latest ingestion</div><div id="ingestState" class="value">—</div><div id="ingestMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Last verified live-session ingestion</div><div id="lastVerifiedState" class="value">—</div><div id="lastVerifiedMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">Latest feature run</div><div id="featureState" class="value">—</div><div id="featureMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">Evidence layer</div><div id="evidenceState" class="value">—</div><div id="evidenceMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">Fundamentals</div><div id="fundState" class="value">—</div><div id="fundMeta" class="muted"></div></div>
@@ -391,8 +392,9 @@ async function latestAsOf(table,cols='*'){
 async function loadDashboard(){
   $('cards').innerHTML='<div class="card muted">Loading verified research…</div>';
   try{
-    const [ing,feat,evid,fund,valuation,eventRisk,acceptance,cards,priors,paperDecisions,outcomes,lab]=await Promise.all([
+    const [ing,verifiedRun,feat,evid,fund,valuation,eventRisk,acceptance,cards,priors,paperDecisions,outcomes,lab]=await Promise.all([
       latest('ingestion_runs','started_at,status,success_count,failure_count,data_eligible_count,trade_eligible,details'),
+      supabase.from('ingestion_runs').select('started_at,status,success_count,failure_count,data_eligible_count,trade_eligible').eq('status','completed').gte('data_eligible_count',3).eq('failure_count',0).order('started_at',{ascending:false}).limit(1).maybeSingle(),
       latest('feature_runs','started_at,status,instruments_considered,instruments_ready'),
       latest('evidence_runs','started_at,status,macro_success_count,macro_failure_count,sec_success_count,sec_failure_count,trade_eligible'),
       latest('fundamental_runs','started_at,status,issuer_success_count,issuer_failure_count,fact_count,trade_eligible'),
@@ -420,6 +422,16 @@ async function loadDashboard(){
     const sessionClosed=ingestSkip&&ing?.details?.reason==='outside_regular_us_session';
     $('ingestState').textContent=sessionClosed?'MARKET CLOSED / SKIPPED':ing?.status?.toUpperCase()||'—';
     $('ingestMeta').textContent=ing?(sessionClosed?'Expected scheduled skip outside U.S. regular hours · ':ingestSkip?'Skipped; review ingestion details · ':(ing.data_eligible_count??0)+' eligible · ')+(ing.failure_count??0)+' failures · '+dt(ing.started_at):'No run';
+    // Historical last qualified run is distinct from the latest (possibly expected) scheduled skip.
+    if(verifiedRun.error) {
+      $('lastVerifiedState').textContent='UNAVAILABLE';
+      $('lastVerifiedMeta').textContent='Could not query qualified ingestion history.';
+    } else {
+      const vr=verifiedRun.data;
+      $('lastVerifiedState').textContent=vr?'LAST QUALIFIED RUN':'NONE FOUND';
+      $('lastVerifiedState').className='value '+(vr?'amber':'red');
+      $('lastVerifiedMeta').textContent=vr?(vr.data_eligible_count+' eligible · historical, not necessarily fresh · '+dt(vr.started_at)):'No historical clean 3-symbol run found. Investigate during U.S. session.';
+    }
     $('featureState').textContent=feat?.status?.toUpperCase()||'—';
     $('featureState').className='value '+stateClass(feat?.status);
     $('featureMeta').textContent=feat?(String(feat.status).toLowerCase()==='skipped'?'No instruments ready for this run · ':'')+feat.instruments_ready+'/'+feat.instruments_considered+' ready · '+dt(feat.started_at):'No run';
