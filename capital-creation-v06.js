@@ -124,7 +124,7 @@ function render(){
 for(let i=0;i<3;i++)$('create_tab'+i).addEventListener('click',()=>{active=i;fillInputs();render();});
 for(const k of formKeys)$(inputs[k]).addEventListener('input',()=>{
  try{possibilities[active]=currentInputs();$('create_error').textContent='';}
- catch(e){$('create_error').textContent=e.message;return;}
+ catch(e){$('create_error').textContent=e.message;results=[];$('create_comparison').innerHTML='<tr><td colspan="7" class="red">Invalid input: clear this error before using a comparison.</td></tr>';$('create_caveat').textContent='';return;}
  render();
 });
 $('create_export').addEventListener('click',()=>{
@@ -142,5 +142,6 @@ $('create_export').addEventListener('click',()=>{
  const a=doc.createElement('a');a.href=url;a.download='WealthOS_Capital_Creation_Comparison_v06.csv';a.click();
  root.setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
+engine.getOpportunityScenarios=()=>possibilities.map(x=>({...x}));
 fillInputs();render();
 })(typeof window!=='undefined'?window:globalThis);
