@@ -392,7 +392,7 @@ async function loadDashboard(){
   $('cards').innerHTML='<div class="card muted">Loading verified research…</div>';
   try{
     const [ing,feat,evid,fund,valuation,eventRisk,acceptance,cards,priors,paperDecisions,outcomes,lab]=await Promise.all([
-      latest('ingestion_runs','started_at,status,success_count,failure_count,data_eligible_count,trade_eligible'),
+      latest('ingestion_runs','started_at,status,success_count,failure_count,data_eligible_count,trade_eligible,details'),
       latest('feature_runs','started_at,status,instruments_considered,instruments_ready'),
       latest('evidence_runs','started_at,status,macro_success_count,macro_failure_count,sec_success_count,sec_failure_count,trade_eligible'),
       latest('fundamental_runs','started_at,status,issuer_success_count,issuer_failure_count,fact_count,trade_eligible'),
@@ -416,7 +416,10 @@ async function loadDashboard(){
 
     $('ingestState').textContent=ing?.status?.toUpperCase()||'—';
     $('ingestState').className='value '+stateClass(ing?.status,ing?.failure_count);
-    $('ingestMeta').textContent=ing?(String(ing.status).toLowerCase()==='skipped'&&Number(ing.data_eligible_count)===0?'No eligible instruments for this run · ':ing.data_eligible_count+' eligible · ')+ing.failure_count+' failures · '+dt(ing.started_at):'No run';
+    const ingestSkip=String(ing?.status||'').toLowerCase()==='skipped';
+    const sessionClosed=ingestSkip&&ing?.details?.reason==='outside_regular_us_session';
+    $('ingestState').textContent=sessionClosed?'MARKET CLOSED / SKIPPED':ing?.status?.toUpperCase()||'—';
+    $('ingestMeta').textContent=ing?(sessionClosed?'Expected scheduled skip outside U.S. regular hours · ':ingestSkip?'Skipped; review ingestion details · ':(ing.data_eligible_count??0)+' eligible · ')+(ing.failure_count??0)+' failures · '+dt(ing.started_at):'No run';
     $('featureState').textContent=feat?.status?.toUpperCase()||'—';
     $('featureState').className='value '+stateClass(feat?.status);
     $('featureMeta').textContent=feat?(String(feat.status).toLowerCase()==='skipped'?'No instruments ready for this run · ':'')+feat.instruments_ready+'/'+feat.instruments_considered+' ready · '+dt(feat.started_at):'No run';
