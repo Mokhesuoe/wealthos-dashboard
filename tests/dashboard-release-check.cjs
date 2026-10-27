@@ -68,3 +68,8 @@ assert.match(html,/async function diagnoseSnapshotAccess\(\)/,'Snapshot diagnost
 assert.match(html,/authInfo\?\.currentLevel!=='aal2'/,'Snapshot diagnostics require MFA AAL2');
 assert.match(html,/ZERO VISIBLE ROWS/,'Diagnostics distinguish RLS visibility from backend absence');
 console.log('PASS authenticated snapshot diagnostics safety contract');
+
+assert.match(html,/HISTORICAL /,'Acceptance gate must label old passes as historical');
+assert.match(html,/current session NOT accepted/,'Acceptance gate cannot promote an old pass as current');
+assert.match(html,/acceptanceAge<=60\*60\*1000/,'Acceptance status has an explicit recency window');
+console.log('PASS acceptance gate result recency labels');
