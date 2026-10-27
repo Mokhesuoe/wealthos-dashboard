@@ -3,11 +3,13 @@ on:
   push:
     paths:
       - index.html
+      - capital-v05.js
       - tests/dashboard-release-check.cjs
       - .github/workflows/dashboard-release-checks.yml
   pull_request:
     paths:
       - index.html
+      - capital-v05.js
       - tests/dashboard-release-check.cjs
       - .github/workflows/dashboard-release-checks.yml
   workflow_dispatch:
