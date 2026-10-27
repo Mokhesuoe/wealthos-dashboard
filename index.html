@@ -85,6 +85,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="card metric"><div class="label">Valuation layer</div><div id="valuationState" class="value">—</div><div id="valuationMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">Official event risk</div><div id="eventState" class="value">—</div><div id="eventMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">v0.4 acceptance gate</div><div id="acceptState" class="value">—</div><div id="acceptMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Recurring session research quality</div><div id="sessionQualityState" class="value">—</div><div id="sessionQualityMeta" class="muted"></div></div>
     </div>
 
     <details class="card" id="researchDiagnosticsPanel" style="margin:0 0 16px">
@@ -399,7 +400,7 @@ async function latestAsOf(table,cols='*'){
 async function loadDashboard(){
   $('cards').innerHTML='<div class="card muted">Loading verified research…</div>';
   try{
-    const [ing,verifiedRun,feat,evid,fund,valuation,eventRisk,acceptance,cards,priors,paperDecisions,outcomes,lab]=await Promise.all([
+    const [ing,verifiedRun,feat,evid,fund,valuation,eventRisk,acceptance,qualityRun,cards,priors,paperDecisions,outcomes,lab]=await Promise.all([
       latest('ingestion_runs','started_at,status,success_count,failure_count,data_eligible_count,trade_eligible,details'),
       supabase.from('ingestion_runs').select('started_at,status,success_count,failure_count,data_eligible_count,trade_eligible').eq('status','completed').gte('data_eligible_count',3).eq('failure_count',0).order('started_at',{ascending:false}).limit(1).maybeSingle(),
       latest('feature_runs','started_at,status,instruments_considered,instruments_ready'),
@@ -408,6 +409,7 @@ async function loadDashboard(){
       latestAsOf('valuation_snapshots','as_of,model_version,evidence_coverage_score,reliability_score,trade_eligible'),
       latestAsOf('event_risk_snapshots','as_of,model_version,evidence_coverage_score,reliability_score,data_eligible,trade_eligible'),
       latest('research_acceptance_runs','started_at,finished_at,status,card_version,fresh_feature_count,valuation_count,card_count,minimum_confidence,minimum_evidence_reliability,trade_eligible'),
+      supabase.from('research_session_quality_runs').select('evaluated_at,session_date,status,feature_count,valuation_count,card_count,reasons,trade_eligible').order('evaluated_at',{ascending:false}).limit(1).maybeSingle(),
       supabase.from('opportunity_decision_cards').select('id,instrument_id,as_of,card_version,research_status,research_priority_score,confidence,evidence_reliability_score,supporting_evidence,counter_evidence,evidence_gaps,scenario_framework,devils_advocate,rationale,data_eligible,trade_eligible').order('as_of',{ascending:false}).limit(20),
       supabase.from('expected_return_snapshots').select('id,instrument_id,as_of,model_version,reference_price,base_return_pct,bull_return_pct,bear_return_pct,expected_downside_pct,confidence,evidence_coverage_score,reliability_score,model_validated,validation_status,components,data_eligible,trade_eligible').eq('model_version','expected_return_prior_v0.5').order('as_of',{ascending:false}).limit(20),
       supabase.from('paper_decisions').select('id,instrument_id,expected_return_snapshot_id,decision_at,decision_type,reference_price,model_validated,data_eligible,trade_eligible,rationale').eq('decision_version','paper_decision_v0.5').order('decision_at',{ascending:false}).limit(20),
@@ -474,6 +476,10 @@ async function loadDashboard(){
       ? ((acceptance.card_version||'v0.4')+' · '+(acceptance.fresh_feature_count??0)+' fresh features · '+(acceptance.valuation_count??0)+' valuations · '+(acceptance.card_count??0)+' cards · '+dt(acceptance.started_at)+(acceptanceCurrent?' · latest within 1h':' · old result; current session NOT accepted'))
       : 'No acceptance run visible to this session. Review RLS and scheduled gate activity.';
 
+    const qr=qualityRun.error?null:qualityRun.data;
+    $('sessionQualityState').textContent=qualityRun.error?'QUERY ERROR':qr?(qr.status==='passed'?'RESEARCH CHECK PASSED':'RESEARCH CHECK '+String(qr.status).toUpperCase()):'NO RECORDED CHECK';
+    $('sessionQualityState').className='value '+(qr?.status==='passed'?'amber':'red');
+    $('sessionQualityMeta').textContent=qualityRun.error?'Session quality query unavailable':qr?(qr.feature_count+'/3 features · '+qr.valuation_count+'/3 valuations · '+qr.card_count+'/3 cards · '+qr.session_date+' · '+dt(qr.evaluated_at)+' · '+(qr.reasons||[]).join(', ')+' · not investment approval'):'No scheduled session-quality result visible.';
     const latestPriors=new Map();
     for(const p of priors.data||[]) if(!latestPriors.has(p.instrument_id)) latestPriors.set(p.instrument_id,p);
     const latestPaper=new Map();
