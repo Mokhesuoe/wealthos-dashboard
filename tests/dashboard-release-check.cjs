@@ -79,3 +79,8 @@ assert.match(html,/research_session_quality_runs/,'Dashboard must query recurrin
 assert.match(html,/not investment approval/,'Quality pass must explicitly deny investment approval');
 assert.match(html,/qualityRun\.error/,'Quality query error must be visible');
 console.log('PASS recurring quality display and no-trade semantics');
+
+assert.match(html,/timeZone:'America\/New_York'/,'Recurring-quality recency uses market timezone');
+assert.match(html,/HISTORICAL /,'Old session-quality results must be labeled historical');
+assert.match(html,/current NY session not checked/,'Old checks cannot certify current market session');
+console.log('PASS recurring research session freshness');
