@@ -22,6 +22,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 </style>
 <script defer src="./capital-v05.js?v=05"></script>
 <script defer src="./capital-creation-v06.js?v=06"></script>
+<script defer src="./capital-evidence-v07.js?v=07"></script>
 </head>
 <body>
 <div class="shell">
@@ -166,6 +167,72 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       </tr></thead><tbody id="create_comparison"></tbody></table></div>
       <div class="row" style="margin-top:12px"><button class="btn" type="button" id="create_export">Export opportunity comparison CSV</button><span class="muted">No server upload or automatic transfer into v0.5. Validate real business assumptions before using any projected cash distributions for capital planning.</span></div>
       <p class="muted" style="margin-top:12px">Limitations: illustrative effective tax, no Lesotho-specific tax calculation, no FX or financing amortisation model, no demand validation, churn, bad debts, asset-sale valuation or forecast guarantees. All figures are maloti unless changed outside the model. Scenarios remain in this browser session only.</p>
+    </section>
+    <section class="card" id="evidencePanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Capital Evidence & Validation · v0.7</div><h2>Opening wealth and business diligence register</h2></div><span class="badge amber">USER-ATTESTED · NOT APPROVED</span></div>
+      <p class="muted">Record a nonduplicated opening personal capital position and the evidence behind each v0.6 opportunity. References and amounts remain in this browser session. No file upload, database write, broker order, or unattended capital allocation.</p>
+      <h3>1 · Opening wealth statement (M)</h3>
+      <div class="metrics">
+        <label class="label" for="ev_liquid">Liquid investable assets<input class="input" type="number" id="ev_liquid" value="0" step="any" min="0"></label>
+        <label class="label" for="ev_businessEquity">Business equity excluding distributable cash<input class="input" type="number" id="ev_businessEquity" value="0" step="any" min="0"></label>
+        <label class="label" for="ev_otherAssets">Other assets not modelled in v0.5<input class="input" type="number" id="ev_otherAssets" value="0" step="any" min="0"></label>
+        <label class="label" for="ev_liabilities">All outstanding liabilities<input class="input" type="number" id="ev_liabilities" value="0" step="any" min="0"></label>
+        <label class="label" for="ev_liquidityReserve">Ring-fenced liquid reserve<input class="input" type="number" id="ev_liquidityReserve" value="0" step="any" min="0"></label>
+        <label class="label" for="ev_asOf">Balance sheet effective date<input class="input" type="date" id="ev_asOf"></label>
+        <label class="label" for="ev_sourceRef">Non-sensitive source reference<input class="input" type="text" maxlength="160" id="ev_sourceRef" placeholder="Ledger snapshot / statement reference"></label>
+      </div>
+      <label class="row" style="font-size:13px"><input id="ev_declaration" type="checkbox"> I have personally checked the ownership, valuation basis, liabilities and nonduplication of these figures.</label>
+      <div id="ev_baselineError" role="alert" class="red"></div><div id="ev_baselineNotes" class="amber" role="status"></div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Current nominal net worth</div><div class="value" id="ev_net">—</div></div>
+        <div class="card metric"><div class="label">Unreserved liquid capital</div><div class="value" id="ev_available">—</div></div>
+        <div class="card metric"><div class="label">Evidence state</div><div class="value" id="ev_stage" style="font-size:14px">—</div></div>
+      </div>
+      <div class="row"><button id="ev_transfer" class="btn" type="button" disabled>Copy opening assets and debt into Capital Intelligence v0.5</button><span class="muted">Explicit action only; other assets excluded. No evidence claimed independently verified.</span></div>
+      <div id="ev_transferNote" class="muted" role="status"></div>
+      <div class="divider"></div>
+      <h3>2 · Six-factor diligence for each Capital Creation opportunity</h3>
+      <p class="muted">Choose a v0.6 opportunity. Declare the stage of each evidence requirement and include a non-sensitive source reference and review date. Even a fully documented case is <strong>not approved</strong>. Investment, finance and contract decisions require independent governance.</p>
+      <div class="row" role="group" aria-label="Diligence opportunity">
+        <button class="btn primary" type="button" id="ev_op0">Opportunity A</button>
+        <button class="btn" type="button" id="ev_op1">Opportunity B</button>
+        <button class="btn" type="button" id="ev_op2">Opportunity C</button>
+        <button class="btn" type="button" id="ev_refreshOpportunities">Refresh names and funding from v0.6</button>
+      </div>
+      <h4 id="ev_selectedName">Opportunity A</h4>
+      <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(270px,1fr))"><div class="card" style="padding:12px"><div class="label">Customer demand / contracts</div><div class="metrics" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:8px 0 0">
+<label class="label">Evidence stage<select class="input" id="ev_status_customer"><option value="missing">Not assessed</option><option value="internal">Internally reviewed</option><option value="external_reported">External review reported</option></select></label>
+<label class="label">Non-sensitive evidence reference<input class="input" type="text" id="ev_ref_customer" placeholder="Document code / reviewer reference" maxlength="160"></label>
+<label class="label">Evidence review date<input class="input" type="date" id="ev_date_customer"></label></div></div>
+<div class="card" style="padding:12px"><div class="label">Revenue / pricing / costs</div><div class="metrics" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:8px 0 0">
+<label class="label">Evidence stage<select class="input" id="ev_status_economics"><option value="missing">Not assessed</option><option value="internal">Internally reviewed</option><option value="external_reported">External review reported</option></select></label>
+<label class="label">Non-sensitive evidence reference<input class="input" type="text" id="ev_ref_economics" placeholder="Document code / reviewer reference" maxlength="160"></label>
+<label class="label">Evidence review date<input class="input" type="date" id="ev_date_economics"></label></div></div>
+<div class="card" style="padding:12px"><div class="label">Execution capacity / suppliers</div><div class="metrics" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:8px 0 0">
+<label class="label">Evidence stage<select class="input" id="ev_status_capacity"><option value="missing">Not assessed</option><option value="internal">Internally reviewed</option><option value="external_reported">External review reported</option></select></label>
+<label class="label">Non-sensitive evidence reference<input class="input" type="text" id="ev_ref_capacity" placeholder="Document code / reviewer reference" maxlength="160"></label>
+<label class="label">Evidence review date<input class="input" type="date" id="ev_date_capacity"></label></div></div>
+<div class="card" style="padding:12px"><div class="label">Financing and liquidity coverage</div><div class="metrics" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:8px 0 0">
+<label class="label">Evidence stage<select class="input" id="ev_status_funding"><option value="missing">Not assessed</option><option value="internal">Internally reviewed</option><option value="external_reported">External review reported</option></select></label>
+<label class="label">Non-sensitive evidence reference<input class="input" type="text" id="ev_ref_funding" placeholder="Document code / reviewer reference" maxlength="160"></label>
+<label class="label">Evidence review date<input class="input" type="date" id="ev_date_funding"></label></div></div>
+<div class="card" style="padding:12px"><div class="label">Ownership, contracts, regulatory permissions</div><div class="metrics" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:8px 0 0">
+<label class="label">Evidence stage<select class="input" id="ev_status_legal"><option value="missing">Not assessed</option><option value="internal">Internally reviewed</option><option value="external_reported">External review reported</option></select></label>
+<label class="label">Non-sensitive evidence reference<input class="input" type="text" id="ev_ref_legal" placeholder="Document code / reviewer reference" maxlength="160"></label>
+<label class="label">Evidence review date<input class="input" type="date" id="ev_date_legal"></label></div></div>
+<div class="card" style="padding:12px"><div class="label">Taxes and FX</div><div class="metrics" style="grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:8px 0 0">
+<label class="label">Evidence stage<select class="input" id="ev_status_taxfx"><option value="missing">Not assessed</option><option value="internal">Internally reviewed</option><option value="external_reported">External review reported</option></select></label>
+<label class="label">Non-sensitive evidence reference<input class="input" type="text" id="ev_ref_taxfx" placeholder="Document code / reviewer reference" maxlength="160"></label>
+<label class="label">Evidence review date<input class="input" type="date" id="ev_date_taxfx"></label></div></div></div>
+      <div class="callout"><strong>Evidence gate:</strong> <span id="ev_diligenceStatus">—</span><div class="muted" id="ev_diligenceNotes"></div></div>
+      <h3>3 · Proposed commitments versus available cash</h3>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Proposed owner funding · 3 opportunities</div><div class="value" id="ev_commitments">—</div></div>
+        <div class="card metric"><div class="label">Funding gap over available capital</div><div class="value" id="ev_gap">—</div></div>
+      </div>
+      <div id="ev_portfolioError" class="red" role="alert"></div>
+      <div style="overflow:auto"><table><thead><tr><th>Opportunity</th><th>Proposed owner capital</th><th>External review reported</th><th>Evidence position</th><th>Approved?</th></tr></thead><tbody id="ev_portfolioRows"></tbody></table></div>
+      <p class="muted">The three commitments are considered together only for a hypothetical funding-gap check; this is not a mandate to execute all three. A source reference is not proof of its validity. WealthOS does not independently check evidence documents and never grants investment approval.</p>
     </section>
     <div class="card" style="margin-top:14px">
       <h2>Governance state</h2>
