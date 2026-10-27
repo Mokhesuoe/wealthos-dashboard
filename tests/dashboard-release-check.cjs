@@ -73,3 +73,9 @@ assert.match(html,/HISTORICAL /,'Acceptance gate must label old passes as histor
 assert.match(html,/current session NOT accepted/,'Acceptance gate cannot promote an old pass as current');
 assert.match(html,/acceptanceAge<=60\*60\*1000/,'Acceptance status has an explicit recency window');
 console.log('PASS acceptance gate result recency labels');
+
+assert.match(html,/id="sessionQualityState"/,'Separate recurring session quality indicator must exist');
+assert.match(html,/research_session_quality_runs/,'Dashboard must query recurring quality records');
+assert.match(html,/not investment approval/,'Quality pass must explicitly deny investment approval');
+assert.match(html,/qualityRun\.error/,'Quality query error must be visible');
+console.log('PASS recurring quality display and no-trade semantics');
