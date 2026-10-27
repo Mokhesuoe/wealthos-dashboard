@@ -442,17 +442,19 @@ async function loadDashboard(){
     $('fundState').className='value '+stateClass(fund?.status);
     $('fundMeta').textContent=fund?(fund.issuer_success_count+' issuers · '+fund.fact_count+' facts · '+dt(fund.started_at)):'No run';
 
-    $('valuationState').textContent=valuation?'READY':'AWAITING';
-    $('valuationState').className='value '+(valuation?'green':'amber');
+    // Report visibility separately from freshness or research-model acceptance.
+    // A null RLS-filtered result cannot prove the backing table is empty.
+    $('valuationState').textContent=valuation?'SNAPSHOT VISIBLE':'NOT VISIBLE';
+    $('valuationState').className='value '+(valuation?'amber':'red');
     $('valuationMeta').textContent=valuation
-      ? ('Coverage '+pct(valuation.evidence_coverage_score)+' · Reliability '+pct(valuation.reliability_score)+' · '+dt(valuation.as_of))
-      : 'Awaiting first fresh-session v0.4 valuation snapshot';
+      ? ('Model '+valuation.model_version+' · Coverage '+pct(valuation.evidence_coverage_score)+' · Reliability '+pct(valuation.reliability_score)+' · '+dt(valuation.as_of)+' · freshness/acceptance not established')
+      : 'No snapshot visible to this authenticated session. Review RLS/access and model-version filters; not proof of zero database records.';
 
-    $('eventState').textContent=eventRisk?.data_eligible?'READY':'AWAITING';
-    $('eventState').className='value '+(eventRisk?.data_eligible?'green':'amber');
+    $('eventState').textContent=eventRisk?(eventRisk.data_eligible?'SNAPSHOT VISIBLE':'NOT ELIGIBLE'):'NOT VISIBLE';
+    $('eventState').className='value '+(eventRisk?'amber':'red');
     $('eventMeta').textContent=eventRisk
-      ? ('Coverage '+pct(eventRisk.evidence_coverage_score)+' · Reliability '+pct(eventRisk.reliability_score)+' · '+dt(eventRisk.as_of))
-      : 'No official event-risk snapshot';
+      ? ('Model '+eventRisk.model_version+' · Coverage '+pct(eventRisk.evidence_coverage_score)+' · Reliability '+pct(eventRisk.reliability_score)+' · '+dt(eventRisk.as_of)+' · freshness/acceptance not established')
+      : 'No event-risk snapshot visible to this session; review RLS/access rather than assuming table empty.';
 
     $('acceptState').textContent=acceptance?.status?.toUpperCase()||'ARMED';
     $('acceptState').className='value '+(acceptance?.status==='passed'?'green':acceptance?.status==='failed'?'red':'amber');
