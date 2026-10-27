@@ -21,6 +21,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 @media(max-width:950px){.metrics,.cards{grid-template-columns:1fr 1fr}}@media(max-width:620px){.metrics,.cards{grid-template-columns:1fr}.shell{padding:12px}}
 </style>
 <script defer src="./capital-v05.js?v=05"></script>
+<script defer src="./capital-creation-v06.js?v=06"></script>
 </head>
 <body>
 <div class="shell">
@@ -130,6 +131,41 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="callout"><strong>Financial feasibility ≠ financial forecast.</strong> If the monthly contribution required is far above your current capacity, investment compounding alone will not achieve the target on the chosen assumptions. Business equity is valued separately and must exclude distributions already invested. Tax percentages are generic scenario inputs, <em>not</em> a statement of Lesotho tax law. Liquidity-adjusted value is illustrative, not sale proceeds.</div>
       <div class="row" style="margin:12px 0"><button class="btn" type="button" id="cap5_export">Export annual scenario CSV</button><span class="muted">No personal values stored in browser storage or uploaded to WealthOS.</span></div>
       <div style="overflow:auto;max-height:340px"><table><thead><tr><th>Year</th><th>Liquid assets</th><th>Business equity</th><th>Debt</th><th>Nominal net wealth</th><th>Real net wealth</th></tr></thead><tbody id="cap5_rows"></tbody></table></div>
+    </section>
+    <section class="card" id="creationStudio" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Capital Creation Studio · v0.6</div><h2>Commercial opportunity and capital-generation laboratory</h2></div><span class="badge amber">ILLUSTRATIVE · LOCAL ONLY</span></div>
+      <p class="muted">Compare three candidate business initiatives against the same transparent cash-flow rules. Estimate cash distributable to your ownership stake, initial capital at risk, hypothetical payback and downside funding needs. This is <strong>not</strong> an investment recommendation or business valuation.</p>
+      <div class="callout"><strong>Model integrity:</strong> Cash distributions are shown separately from the value of an ownership stake. Working-capital reserves are retained in the business, not treated as spendable income. Do not simultaneously count distributions as growing business equity and as invested cash in Capital Intelligence v0.5.</div>
+      <div class="row" role="group" aria-label="Select opportunity to edit" style="margin:12px 0">
+        <button class="btn primary" id="create_tab0" type="button">Opportunity A</button>
+        <button class="btn" id="create_tab1" type="button">Opportunity B</button>
+        <button class="btn" id="create_tab2" type="button">Opportunity C</button>
+      </div>
+      <div class="metrics"><label class="label" for="create_name">Opportunity name<input class="input" type="text" id="create_name" maxlength="80"></label>
+<label class="label" for="create_ownerCapital">Owner startup capital committed (M)<input class="input" type="number" id="create_ownerCapital" step="any"></label>
+<label class="label" for="create_monthlyRevenue">Monthly business sales (M)<input class="input" type="number" id="create_monthlyRevenue" step="any"></label>
+<label class="label" for="create_grossMarginPct">Gross margin (%)<input class="input" type="number" id="create_grossMarginPct" step="any"></label>
+<label class="label" for="create_monthlyFixedCosts">Monthly fixed operating costs (M)<input class="input" type="number" id="create_monthlyFixedCosts" step="any"></label></div>
+      <details>
+        <summary class="btn" style="cursor:pointer;display:inline-block">Advanced assumptions: growth, tax, financing, ownership and working capital</summary>
+        <div class="metrics"><label class="label" for="create_annualRevenueGrowthPct">Annual sales growth (%)<input class="input" type="number" id="create_annualRevenueGrowthPct" step="any"></label>
+<label class="label" for="create_annualCostInflationPct">Annual operating cost inflation (%)<input class="input" type="number" id="create_annualCostInflationPct" step="any"></label>
+<label class="label" for="create_monthlyMaintenanceCapex">Monthly maintenance capital spending (M)<input class="input" type="number" id="create_monthlyMaintenanceCapex" step="any"></label>
+<label class="label" for="create_monthlyDebtService">Monthly business debt servicing (M)<input class="input" type="number" id="create_monthlyDebtService" step="any"></label>
+<label class="label" for="create_effectiveTaxPct">Illustrative business cash tax (%)<input class="input" type="number" id="create_effectiveTaxPct" step="any"></label>
+<label class="label" for="create_workingCapitalReservePct">Monthly revenue reserved as working capital (%)<input class="input" type="number" id="create_workingCapitalReservePct" step="any"></label>
+<label class="label" for="create_ownerSharePct">Your share of distributable cash (%)<input class="input" type="number" id="create_ownerSharePct" step="any"></label>
+<label class="label" for="create_horizonMonths">Projection horizon (months; 12–60)<input class="input" type="number" id="create_horizonMonths" step="any"></label></div>
+      </details>
+      <div id="create_error" class="red" role="alert" style="margin-top:10px"></div>
+      <div id="create_caveat" class="amber" role="status" style="margin:10px 0"></div>
+      <h3>Three-way opportunity comparison</h3>
+      <p class="muted">Downside assumes 65% of projected sales; upside assumes 130%. Fixed operating costs, margins and capital requirements are unchanged. Payback is withheld if modeled funding deficits occur.</p>
+      <div style="overflow:auto"><table><thead><tr>
+        <th>Candidate / status</th><th>Owner capital (M)</th><th>Base cumulative owner cash (M)</th><th>Downside owner cash (M)</th><th>Base funding deficits (M)</th><th>Payback</th><th>Final monthly owner cash (M)</th>
+      </tr></thead><tbody id="create_comparison"></tbody></table></div>
+      <div class="row" style="margin-top:12px"><button class="btn" type="button" id="create_export">Export opportunity comparison CSV</button><span class="muted">No server upload or automatic transfer into v0.5. Validate real business assumptions before using any projected cash distributions for capital planning.</span></div>
+      <p class="muted" style="margin-top:12px">Limitations: illustrative effective tax, no Lesotho-specific tax calculation, no FX or financing amortisation model, no demand validation, churn, bad debts, asset-sale valuation or forecast guarantees. All figures are maloti unless changed outside the model. Scenarios remain in this browser session only.</p>
     </section>
     <div class="card" style="margin-top:14px">
       <h2>Governance state</h2>
