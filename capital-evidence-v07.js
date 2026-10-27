@@ -31,7 +31,7 @@ function baseline(input,now='2026-10-27'){
  const evidenced=dated&&ref&&a.declaration===true;
  return {netWorth,available,liquid:a.liquid,businessEquity:a.businessEquity,
    otherAssets:a.otherAssets,liabilities:a.liabilities,liquidityReserve:a.liquidityReserve,
-   daysOld,evidenced,transferAllowed:evidenced&&a.liquidityReserve<=a.liquid,
+   daysOld,evidenced,transferAllowed:evidenced&&daysOld<=120&&a.liquidityReserve<=a.liquid,
    state:!evidenced?'USER INPUT — SOURCE NOT COMPLETE':daysOld>120?'USER ATTESTED — STALE RECORD':'USER ATTESTED — NOT INDEPENDENTLY VERIFIED',
    warnings:[
     ...(a.liquidityReserve>a.liquid?['Reserve exceeds liquid assets. No discretionary capital remains.']:[]),
