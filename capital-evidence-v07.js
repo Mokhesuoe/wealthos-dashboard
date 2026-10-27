@@ -176,5 +176,10 @@ $('ev_transfer').addEventListener('click',()=>{
   $('ev_transferNote').textContent='Opening balances copied into v0.5 locally (other assets excluded). No database update and no independent verification.';
  }catch(e){$('ev_transferNote').textContent=e.message;}
 });
+// Read-only, in-memory snapshot for Capital Allocation v0.8. No storage, network, or mutations.
+api.getLiveSnapshot=()=>({
+ baseline:lastBaseline?{...lastBaseline}:null,
+ diligence:refs.map(record=>Object.fromEntries(AXES.map(([key])=>[key,{...record[key]}])))
+});
 fillEvidence();updateBaseline();
 })(typeof window!=='undefined'?window:globalThis);
