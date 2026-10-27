@@ -44,3 +44,14 @@ Require all four commands to exit 0 with recorded output. Also require the GitHu
 | Live capital execution | Must remain blocked | LOCKED |
 
 **Release rule:** Do not set PRODUCTION READY until every OPEN or PARTIAL gate has a verifiable date, accountable reviewer, evidence link and PASS outcome. No public deployment, privileged key publication, broker connection or live trade may be performed under this checklist.
+
+
+## 27 October 2026 — Actual user browser acceptance evidence
+
+The application owner supplied consecutive screenshots from the deployed `https://mokhesuoe.github.io/wealthos-dashboard/` showing sign-in, authenticator TOTP challenge and successful entry to the authenticated dashboard (MFA AAL2 badge). Screenshots also show rendered v0.4 Opportunity Decision Cards, v0.5 Decision Intelligence, Capital Intelligence v0.5, Capital Creation Studio v0.6, Evidence & Validation v0.7, Capital Allocation v0.8 and Governance. This is **PASS for the positive-path user login/MFA and rendered-module smoke test**; it is not a negative-path AAL1/RLS authorization test, nor a functional assertion of every input, export, or modelling result.
+
+Research readiness observed on these screenshots: ingestion **SKIPPED** (zero eligible instruments); feature generation **SKIPPED** (0/0 ready); evidence **COMPLETED** (7 macro, 11 SEC); fundamentals **COMPLETED** (11 issuers, 4,070 facts); valuation and event risk **AWAITING**; v0.4 acceptance gate **ARMED**. There are three unvalidated return priors and three paper decisions, zero scored forward outcomes with 200 pending. Strategy Lab latest visible result was 12.09% compared with 16.90% benchmark; promotion false. These numbers are a point-in-time screenshot, not a live query.
+
+Capital Intelligence displayed default assumptions with nominal wealth **M2,844,995** after 20 years vs M1 billion target; the monthly contribution required was **M1,757,472**. This is a hypothetical illustration, not an independently validated financial plan.
+
+**Still open:** tests that an AAL1 session and a non-member cannot read restricted research tables (including via direct API), cross-device sign-in/sign-out and mobile layout, interactive changes and CSV export reconciliation, latest ingestion eligibility investigation, fresh-session event-risk/valuation creation and forward model evaluation. No trade authorization.
