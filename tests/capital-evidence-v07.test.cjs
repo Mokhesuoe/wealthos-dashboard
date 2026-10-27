@@ -21,6 +21,7 @@ assert.equal(model.baseline({liquid:1000,liquidityReserve:1200},now).available,0
 assert.equal(model.baseline({liquid:1000,liquidityReserve:1200,asOf:'2026-10-25',sourceRef:'LedgerRef2026',declaration:true},now).transferAllowed,false);
 assert.equal(model.baseline({liquid:10,asOf:'2026-10-29',sourceRef:'LedgerRef2026',declaration:true},now).evidenced,false);
 assert.equal(model.baseline({liquid:10,asOf:'2026-01-01',sourceRef:'LedgerRef2026',declaration:true},now).state,'USER ATTESTED — STALE RECORD');
+assert.equal(model.baseline({liquid:10,asOf:'2026-01-01',sourceRef:'LedgerRef2026',declaration:true},now).transferAllowed,false,'Stale balances must not be copied to v0.5');
 assert.equal(model.baseline({liquid:10,asOf:'2026-10-25',sourceRef:'',declaration:true},now).evidenced,false);
 for(const invalid of [{liquid:-1},{businessEquity:Infinity},{liabilities:NaN},{otherAssets:1e308,liquid:1e308}])assert.throws(()=>model.baseline(invalid,now));
 console.log('PASS evidence baseline arithmetic, dated attestations, liquidity reserve, overflow and unverifiable source flags');
