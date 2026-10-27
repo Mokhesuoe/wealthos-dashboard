@@ -34,6 +34,7 @@ jobs:
           node tests/dashboard-release-check.cjs
           node tests/capital-creation-v06.test.cjs
           node tests/capital-evidence-v07.test.cjs
+          node tests/capital-allocation-v08.test.cjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -69,13 +70,17 @@ jobs:
                  grep -q 'capital-creation-v06.js?v=06' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'id="evidencePanel"' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'capital-evidence-v07.js?v=07' "$RUNNER_TEMP/wealthos-deployed.html" &&
+                 grep -q 'id="allocationPanel"' "$RUNNER_TEMP/wealthos-deployed.html" &&
+                 grep -q 'capital-allocation-v08.js?v=08' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'LIVE CAPITAL LOCKED' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/capital-v05.js?v=05" --output "$RUNNER_TEMP/wealthos-capital.js" &&
                  grep -q 'WealthOSCapitalV05' "$RUNNER_TEMP/wealthos-capital.js" &&
                  curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/capital-creation-v06.js?v=06" --output "$RUNNER_TEMP/wealthos-creation.js" &&
                  grep -q 'WealthOSCreationV06' "$RUNNER_TEMP/wealthos-creation.js" &&
                  curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/capital-evidence-v07.js?v=07" --output "$RUNNER_TEMP/wealthos-evidence.js" &&
-                 grep -q 'WealthOSEvidenceV07' "$RUNNER_TEMP/wealthos-evidence.js"; then
+                 grep -q 'WealthOSEvidenceV07' "$RUNNER_TEMP/wealthos-evidence.js" &&
+                 curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/capital-allocation-v08.js?v=08" --output "$RUNNER_TEMP/wealthos-allocation.js" &&
+                 grep -q 'WealthOSAllocationV08' "$RUNNER_TEMP/wealthos-allocation.js"; then
                 echo "Published WealthOS HTML verified at $PAGE_URL"
                 success=1
                 break
