@@ -62,3 +62,9 @@ assert.match(html,/SNAPSHOT VISIBLE/,'Valuation and event-risk snapshots should 
 assert.match(html,/No snapshot visible to this authenticated session/,'RLS-empty results must not be described as empty underlying tables');
 assert.match(html,/freshness\/acceptance not established/,'Snapshot visibility must not imply freshness or model acceptance');
 console.log('PASS research snapshot visibility semantics');
+
+assert.match(html,/id="snapshotDiagnose"/,'Manual authenticated snapshot diagnostics control present');
+assert.match(html,/async function diagnoseSnapshotAccess\(\)/,'Snapshot diagnostics implementation present');
+assert.match(html,/authInfo\?\.currentLevel!=='aal2'/,'Snapshot diagnostics require MFA AAL2');
+assert.match(html,/ZERO VISIBLE ROWS/,'Diagnostics distinguish RLS visibility from backend absence');
+console.log('PASS authenticated snapshot diagnostics safety contract');
