@@ -4,12 +4,16 @@ on:
     paths:
       - index.html
       - capital-v05.js
+      - capital-creation-v06.js
+      - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
       - .github/workflows/dashboard-release-checks.yml
   pull_request:
     paths:
       - index.html
       - capital-v05.js
+      - capital-creation-v06.js
+      - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
       - .github/workflows/dashboard-release-checks.yml
   workflow_dispatch:
@@ -25,4 +29,6 @@ jobs:
         with:
           node-version: '22'
       - name: Validate dashboard and capital arithmetic
-        run: node tests/dashboard-release-check.cjs
+        run: |
+          node tests/dashboard-release-check.cjs
+          node tests/capital-creation-v06.test.cjs
