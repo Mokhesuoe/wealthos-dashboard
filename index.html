@@ -463,11 +463,16 @@ async function loadDashboard(){
       ? ('Model '+eventRisk.model_version+' · Coverage '+pct(eventRisk.evidence_coverage_score)+' · Reliability '+pct(eventRisk.reliability_score)+' · '+dt(eventRisk.as_of)+' · freshness/acceptance not established')
       : 'No event-risk snapshot visible to this session; review RLS/access rather than assuming table empty.';
 
-    $('acceptState').textContent=acceptance?.status?.toUpperCase()||'ARMED';
-    $('acceptState').className='value '+(acceptance?.status==='passed'?'green':acceptance?.status==='failed'?'red':'amber');
+    // A historical pass does not certify the current session; show its date and age explicitly.
+    const acceptanceAge=acceptance?.started_at?Date.now()-new Date(acceptance.started_at).getTime():Infinity;
+    const acceptanceCurrent=acceptanceAge>=0&&acceptanceAge<=60*60*1000;
+    $('acceptState').textContent=acceptance
+      ? (acceptanceCurrent?'LATEST '+String(acceptance.status).toUpperCase():'HISTORICAL '+String(acceptance.status).toUpperCase())
+      : 'NO VISIBLE RUN';
+    $('acceptState').className='value '+(acceptanceCurrent&&acceptance.status==='passed'?'green':acceptanceCurrent&&acceptance.status==='failed'?'red':'amber');
     $('acceptMeta').textContent=acceptance
-      ? ((acceptance.card_version||'v0.4')+' · '+(acceptance.valuation_count||0)+' valuations · '+(acceptance.card_count||0)+' cards · '+dt(acceptance.started_at))
-      : 'Waiting for 3 fresh AAPL / SPY / QQQ features during the live U.S. session';
+      ? ((acceptance.card_version||'v0.4')+' · '+(acceptance.fresh_feature_count??0)+' fresh features · '+(acceptance.valuation_count??0)+' valuations · '+(acceptance.card_count??0)+' cards · '+dt(acceptance.started_at)+(acceptanceCurrent?' · latest within 1h':' · old result; current session NOT accepted'))
+      : 'No acceptance run visible to this session. Review RLS and scheduled gate activity.';
 
     const latestPriors=new Map();
     for(const p of priors.data||[]) if(!latestPriors.has(p.instrument_id)) latestPriors.set(p.instrument_id,p);
