@@ -6,6 +6,8 @@ on:
       - capital-v05.js
       - capital-creation-v06.js
       - capital-evidence-v07.js
+      - capital-allocation-v08.js
+      - tests/capital-allocation-v08.test.cjs
       - tests/capital-evidence-v07.test.cjs
       - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
@@ -16,6 +18,8 @@ on:
       - capital-v05.js
       - capital-creation-v06.js
       - capital-evidence-v07.js
+      - capital-allocation-v08.js
+      - tests/capital-allocation-v08.test.cjs
       - tests/capital-evidence-v07.test.cjs
       - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
@@ -37,3 +41,4 @@ jobs:
           node tests/dashboard-release-check.cjs
           node tests/capital-creation-v06.test.cjs
           node tests/capital-evidence-v07.test.cjs
+          node tests/capital-allocation-v08.test.cjs
