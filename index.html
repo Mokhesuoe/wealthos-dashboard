@@ -23,6 +23,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./capital-v05.js?v=05"></script>
 <script defer src="./capital-creation-v06.js?v=06"></script>
 <script defer src="./capital-evidence-v07.js?v=07"></script>
+<script defer src="./capital-allocation-v08.js?v=08"></script>
 </head>
 <body>
 <div class="shell">
@@ -233,6 +234,33 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div id="ev_portfolioError" class="red" role="alert"></div>
       <div style="overflow:auto"><table><thead><tr><th>Opportunity</th><th>Proposed owner capital</th><th>External review reported</th><th>Evidence position</th><th>Approved?</th></tr></thead><tbody id="ev_portfolioRows"></tbody></table></div>
       <p class="muted">The three commitments are considered together only for a hypothetical funding-gap check; this is not a mandate to execute all three. A source reference is not proof of its validity. WealthOS does not independently check evidence documents and never grants investment approval.</p>
+    </section>
+    <section class="card" id="allocationPanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Capital Allocation & Downside Control · v0.8</div><h2>Can we afford these opportunities together?</h2></div><span class="badge red">NO INVESTMENT AUTHORITY</span></div>
+      <p class="muted">A combined affordability and capital-protection check. Uses your latest <strong>v0.6 opportunity scenarios</strong> and <strong>v0.7 opening capital and evidence</strong> in browser memory. Nothing is saved, uploaded, invested or authorised. Press refresh whenever upstream data changes.</p>
+      <div class="callout"><strong>Conservative funding test:</strong> owner startup cash + a user-specified share of total business cash deficits in the 65%-of-sales downside scenario. This is a stress reserve proxy, <strong>not</strong> an established contractual funding obligation, forecast maximum drawdown, investment recommendation, or proof of sufficient cash.</div>
+      <h3>Risk policy assumptions (editable research guardrails)</h3>
+      <div class="metrics">
+        <label class="label">Max single opportunity / unreserved cash (%)<input class="input" id="alloc_concentration" type="number" min="0" max="100" value="35"></label>
+        <label class="label">Minimum unreserved cash left (%)<input class="input" id="alloc_minBuffer" type="number" min="0" max="100" value="25"></label>
+        <label class="label">Downside deficit share funded by you — A (%)<input class="input" id="alloc_share0" type="number" min="0" max="100" value="100"></label>
+        <label class="label">Downside deficit share funded by you — B (%)<input class="input" id="alloc_share1" type="number" min="0" max="100" value="100"></label>
+        <label class="label">Downside deficit share funded by you — C (%)<input class="input" id="alloc_share2" type="number" min="0" max="100" value="100"></label>
+      </div>
+      <div class="row"><button type="button" id="alloc_refresh" class="btn primary">Refresh from v0.6 + v0.7</button><button type="button" id="alloc_export" class="btn">Export capital-risk assessment CSV</button></div>
+      <p class="muted">The 35% concentration limit and 25% liquidity floor are initial illustrative guardrails—not industry standards. Full deficit funding (100%) is initially assumed until your financing responsibility is documented.</p>
+      <div id="alloc_error" class="red" role="alert"></div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Unreserved liquid capital</div><div class="value" id="alloc_available">—</div></div>
+        <div class="card metric"><div class="label">Owner startup commitments</div><div class="value" id="alloc_startup">—</div></div>
+        <div class="card metric"><div class="label">Downside cash-support reserve</div><div class="value" id="alloc_support">—</div></div>
+        <div class="card metric"><div class="label">Total illustrative funding requirement</div><div class="value" id="alloc_required">—</div></div>
+        <div class="card metric"><div class="label">Funding shortfall</div><div class="value" id="alloc_gap">—</div></div>
+        <div class="card metric"><div class="label">Unreserved cash left after commitments</div><div class="value" id="alloc_remaining">—</div></div>
+      </div>
+      <div class="callout"><strong>Research gate:</strong> <span id="alloc_state">—</span><div class="muted" id="alloc_risks" role="status"></div></div>
+      <div style="overflow:auto"><table><thead><tr><th>Opportunity</th><th>Owner startup</th><th>Business downside deficits</th><th>Funding share</th><th>Owner stress reserve</th><th>Total capital need</th><th>% of available cash</th><th>Diligence references</th><th>Approved?</th></tr></thead><tbody id="alloc_rows"></tbody></table></div>
+      <p class="muted">Diligence references are user declarations, not verified external evidence. Deficits are cumulative negative-cash months; modelling them as additional support is conservative but cannot replace a full monthly treasury model. Approval, brokerage and any money movement remain disabled.</p>
     </section>
     <div class="card" style="margin-top:14px">
       <h2>Governance state</h2>
