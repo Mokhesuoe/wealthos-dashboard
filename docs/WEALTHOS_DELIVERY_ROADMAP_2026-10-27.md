@@ -72,3 +72,11 @@ Do not treat screenshot counts or source presence as proof of current backend st
 - Research data cannot be exposed before backend membership/AAL2 validation; a public frontend must not embed secret credentials.
 - Data freshness, provenance, auditability and independent financial verification supersede visual success.
 - Project completion claims must name exactly which functional outcomes have passed. M1b remains an unvalidated aspirational target.
+
+## Live-session diagnostic addendum — 27 October 2026 (15:35–15:37 Lesotho)
+
+Read-only production SQL confirmed **two** successful scheduled ingestions at 13:30 and 13:35 UTC; each recorded 3 successes, 0 failures, 3 data-eligible. At 13:35 UTC the AAPL/SPY/QQQ quality results had two independent sources, status VERIFIED, no provider errors, trade_eligible=false.
+
+The corresponding 13:37 UTC feature job completed but recorded **0 of 3 ready**, not a failed job. Inspection of `market_features` showed **sample_count=1** for AAPL, SPY and QQQ at 13:35 UTC, and `features.price_15m=null`; at 13:30 UTC the sample count was zero. This establishes insufficient opening-session history as the *immediate reason* the visible features were not ready at that moment. Do not weaken the rolling sample history gate. Confirm the expected warm-up outcome by examining feature runs and individual feature rows later in the same regular session. An actual progression to 3/3 is **not yet verified for 27 October**.
+
+**Next verification SQL (read-only):** `select started_at,status,instruments_considered,instruments_ready from public.feature_runs where started_at::date='2026-10-27' order by started_at desc limit 12;` Check `market_features.sample_count`, `feature_ready`, and 15-minute-price presence for each symbol. If readiness remains 0/3 after sufficient same-session observations, investigate feature-refresh source, lookback horizon, and quality threshold, while preserving fail-closed research policy.
