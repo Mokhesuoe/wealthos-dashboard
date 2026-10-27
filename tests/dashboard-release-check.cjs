@@ -15,6 +15,9 @@ for(const [label,re] of [
 assert.doesNotMatch(html,/service_role|sb_secret_/,'Browser cannot embed privileged keys');
 assert.match(html,/outside_regular_us_session/,'Dashboard must identify expected market-closed ingestion skips');
 assert.match(html,/MARKET CLOSED \/ SKIPPED/,'Dashboard must clearly label scheduled closed-market skips');
+assert.match(html,/id="lastVerifiedState"/,'Last qualifying ingestion indicator must render');
+assert.match(html,/\.gte\('data_eligible_count',3\)/,'Last qualifying ingest must require three eligible symbols');
+assert.match(html,/historical, not necessarily fresh/,'Historical success must not be described as current data');
 assert.match(html,/if\(aal\.currentLevel!=='aal2'\)/,'AAL2 required');
 assert.doesNotMatch(html,/if\(m\.require_mfa\s*&&/,'MFA not conditional');
 const inline=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)].at(-1);
