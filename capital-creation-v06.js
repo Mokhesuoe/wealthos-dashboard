@@ -142,6 +142,6 @@ $('create_export').addEventListener('click',()=>{
  const a=doc.createElement('a');a.href=url;a.download='WealthOS_Capital_Creation_Comparison_v06.csv';a.click();
  root.setTimeout(()=>URL.revokeObjectURL(url),1000);
 });
-engine.getOpportunityScenarios=()=>possibilities.map(x=>({...x}));
+engine.getOpportunityScenarios=()=>{if(results.length!==3||results.some(row=>row.error))throw Error('Correct invalid v0.6 inputs before refreshing the allocation model.');return possibilities.map(x=>({...x}));};
 fillInputs();render();
 })(typeof window!=='undefined'?window:globalThis);
