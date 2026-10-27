@@ -57,3 +57,8 @@ nodes.cap5_monthlyContribution.value='5000';nodes.cap5_monthlyContribution.input
 assert.equal(nodes.cap5_error.textContent,'');
 assert.equal(typeof nodes.cap5_export.click,'function');
 console.log('PASS browser-like capital UI interaction');
+
+assert.match(html,/SNAPSHOT VISIBLE/,'Valuation and event-risk snapshots should be labeled as visible, not validated');
+assert.match(html,/No snapshot visible to this authenticated session/,'RLS-empty results must not be described as empty underlying tables');
+assert.match(html,/freshness\/acceptance not established/,'Snapshot visibility must not imply freshness or model acceptance');
+console.log('PASS research snapshot visibility semantics');
