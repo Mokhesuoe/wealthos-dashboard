@@ -477,9 +477,11 @@ async function loadDashboard(){
       : 'No acceptance run visible to this session. Review RLS and scheduled gate activity.';
 
     const qr=qualityRun.error?null:qualityRun.data;
-    $('sessionQualityState').textContent=qualityRun.error?'QUERY ERROR':qr?(qr.status==='passed'?'RESEARCH CHECK PASSED':'RESEARCH CHECK '+String(qr.status).toUpperCase()):'NO RECORDED CHECK';
-    $('sessionQualityState').className='value '+(qr?.status==='passed'?'amber':'red');
-    $('sessionQualityMeta').textContent=qualityRun.error?'Session quality query unavailable':qr?(qr.feature_count+'/3 features · '+qr.valuation_count+'/3 valuations · '+qr.card_count+'/3 cards · '+qr.session_date+' · '+dt(qr.evaluated_at)+' · '+(qr.reasons||[]).join(', ')+' · not investment approval'):'No scheduled session-quality result visible.';
+    const todayNY=new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    const isSessionToday=qr?.session_date===todayNY;
+    $('sessionQualityState').textContent=qualityRun.error?'QUERY ERROR':qr?(isSessionToday?'SESSION '+String(qr.status).toUpperCase():'HISTORICAL '+String(qr.status).toUpperCase()):'NO RECORDED CHECK';
+    $('sessionQualityState').className='value '+(qr?.status==='failed'&&isSessionToday?'red':'amber');
+    $('sessionQualityMeta').textContent=qualityRun.error?'Session quality query unavailable':qr?(qr.feature_count+'/3 features · '+qr.valuation_count+'/3 valuations · '+qr.card_count+'/3 cards · '+qr.session_date+' · '+dt(qr.evaluated_at)+' · '+(qr.reasons||[]).join(', ')+(isSessionToday?' · current NY date':' · historical; current NY session not checked')+' · not investment approval'):'No scheduled session-quality result visible.';
     const latestPriors=new Map();
     for(const p of priors.data||[]) if(!latestPriors.has(p.instrument_id)) latestPriors.set(p.instrument_id,p);
     const latestPaper=new Map();
