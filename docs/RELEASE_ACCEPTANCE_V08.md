@@ -1,6 +1,6 @@
 # WealthOS v0.8 — Release acceptance gate
 
-**Status: NOT VERIFIED / DO NOT LABEL PRODUCTION-READY.** This file is an operator checklist, not an assertion that a deployment exists or that tests passed.
+**Status: DEPLOYED STATIC FRONTEND; AUTHENTICATED RELEASE ACCEPTANCE REMAINS OPEN.** Source: operator screenshots of GitHub Actions on 27 October 2026 show green release-check and deploy runs for commit `f39e60e`; README separately records passing deployed HTTPS smoke checks for commit `118639028b29ef0c166aa57cf67faacd0a3aa253` ([workflow](https://github.com/Mokhesuoe/wealthos-dashboard/actions/runs/40435306391)). The documented public GitHub Pages URL is https://mokhesuoe.github.io/wealthos-dashboard/. This evidence does **not** establish successful TOTP login or private-origin hosting.
 
 ## 1. Automated source checks (blocking)
 Run from the repository root using Node.js 22:
@@ -36,11 +36,11 @@ Require all four commands to exit 0 with recorded output. Also require the GitHu
 | Gate | Current evidence | Decision |
 | --- | --- | --- |
 | Files present in source | GitHub repository inspection | Confirmed |
-| All tests pass locally | No execution log captured in this release review | OPEN |
-| GitHub Actions green on release SHA | Not independently observed | OPEN |
-| Hosted URL reachable and assets load | Not independently observed | OPEN |
+| CI release checks | Operator screenshot shows green Release Checks #25 for commit f39e60e | PASS (screenshot) |
+| GitHub Actions deploy on latest screenshot SHA | Operator screenshot shows green Deploy #55 for commit f39e60e | PASS (screenshot) |
+| Static hosted HTTPS smoke | README records a passing deployment/HTTPS smoke run on earlier commit 1186390; current-commit external browser check not yet captured | PARTIAL |
 | AAL2 / membership / backend RLS integration | No end-to-end test evidence | OPEN |
 | Financial scenario sign-off | No independent sign-off | OPEN |
 | Live capital execution | Must remain blocked | LOCKED |
 
-**Release rule:** Do not set PRODUCTION READY until every OPEN gate has a verifiable date, accountable reviewer, evidence link and PASS outcome. No public deployment, privileged key publication, broker connection or live trade may be performed under this checklist.
+**Release rule:** Do not set PRODUCTION READY until every OPEN or PARTIAL gate has a verifiable date, accountable reviewer, evidence link and PASS outcome. No public deployment, privileged key publication, broker connection or live trade may be performed under this checklist.
