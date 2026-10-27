@@ -81,6 +81,8 @@ assert.match(html,/qualityRun\.error/,'Quality query error must be visible');
 console.log('PASS recurring quality display and no-trade semantics');
 
 assert.match(html,/timeZone:'America\/New_York'/,'Recurring-quality recency uses market timezone');
+assert.match(html,/formatToParts\(new Date\(\)\)/,'Session date must be built from stable Intl date parts');
+assert.match(html,/nyParts.year\+'-'\+nyParts.month\+'-'\+nyParts.day/,'Session date uses ISO-style YYYY-MM-DD');
 assert.match(html,/HISTORICAL /,'Old session-quality results must be labeled historical');
 assert.match(html,/current NY session not checked/,'Old checks cannot certify current market session');
 console.log('PASS recurring research session freshness');
