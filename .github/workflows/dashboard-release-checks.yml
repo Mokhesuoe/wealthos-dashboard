@@ -11,6 +11,7 @@ on:
       - tests/capital-evidence-v07.test.cjs
       - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
+      - tests/release-security-contract.cjs
       - .github/workflows/dashboard-release-checks.yml
   pull_request:
     paths:
@@ -23,6 +24,7 @@ on:
       - tests/capital-evidence-v07.test.cjs
       - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
+      - tests/release-security-contract.cjs
       - .github/workflows/dashboard-release-checks.yml
   workflow_dispatch:
 permissions:
@@ -38,6 +40,7 @@ jobs:
           node-version: '22'
       - name: Validate dashboard and capital arithmetic
         run: |
+          node tests/release-security-contract.cjs
           node tests/dashboard-release-check.cjs
           node tests/capital-creation-v06.test.cjs
           node tests/capital-evidence-v07.test.cjs
