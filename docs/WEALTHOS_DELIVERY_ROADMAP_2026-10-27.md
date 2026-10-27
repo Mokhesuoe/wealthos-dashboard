@@ -2,6 +2,18 @@
 **Baseline:** 27 October 2026 | **Classification:** execution plan, not proof of completion
 **Objective:** establish an operationally trustworthy, secure research and capital-creation decision platform. Long-run aspiration: M1 billion; no projection of guaranteed returns.
 
+## Live production diagnostics — 27 October 2026, before U.S. equity session
+
+Read-only database verification through Supabase:
+- Latest completed market ingestion: **2026-10-26 19:55:00 UTC** (21:55 Lesotho); **3 successes, 0 failures, 3 data-eligible**. Recent sessions contain 78 completed runs and 30 scheduled skips since 24 October (counts reflect current records).
+- Latest completed feature refresh: **2026-10-26 20:02:00 UTC** (22:02 Lesotho); **3 considered, 3 ready**.
+- Most recent recorded ingestion: **2026-10-26 21:55:00 UTC**, skipped for `outside_regular_us_session`, as expected.
+- PostgreSQL cron confirms active `wealthos-market-ingest` (`*/5 13-21 * * 1-5`) and `wealthos-feature-refresh` (`2-57/5 13-21 * * 1-5`); schedules are UTC hour windows with the Edge Function enforcing actual NY market time.
+- It is currently before the 27 October U.S. opening session. **Today's fresh-session ingestion remains unverified; do not claim success until 27 October records exist.**
+- This clears the hypothesis that the displayed closed-market skip proves provider failure. It does not establish fresh valuations, event-risk snapshots or model predictive success.
+
+**WO-01:** Previous live-session ingestion verified; current-session monitoring remains OPEN. **WO-02:** Previous session 3/3 features verified; current-session repeat remains OPEN.
+
 ## Verified milestones
 - Public static GitHub Pages frontend hosted at https://mokhesuoe.github.io/wealthos-dashboard/
 - User screenshots on 27 October 2026: login -> MFA/TOTP challenge -> authenticated AAL2 research dashboard.
