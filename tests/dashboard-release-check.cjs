@@ -129,7 +129,7 @@ console.log('PASS independent capital model closed-form acceptance vectors');
  elements.cap5_years.value='1';elements.cap5_years.input();
  elements.cap5_export.click();
  assert.equal(downloaded,true,'Export link should be activated');
- const rows=exported.trim().split('\\n').map(x=>x.split(','));
+ const rows=exported.trim().split('\n').map(x=>x.split(','));
  assert.deepEqual(rows[0],['year','liquid','equity','debt','net','real','liquidityAdjusted','interestPaid','debtPaid','distributionTax','returnTax']);
  assert.equal(rows.length,2,'One-year scenario exports one annual row');
  assert.equal(rows[1][0],'1');
