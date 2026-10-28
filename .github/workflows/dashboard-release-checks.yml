@@ -7,10 +7,12 @@ on:
       - capital-creation-v06.js
       - capital-evidence-v07.js
       - capital-allocation-v08.js
+      - session-quality-v01.js
       - tests/capital-allocation-v08.test.cjs
       - tests/capital-evidence-v07.test.cjs
       - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
+      - tests/session-quality-v01.test.cjs
       - tests/release-security-contract.cjs
       - .github/workflows/dashboard-release-checks.yml
   pull_request:
@@ -20,10 +22,12 @@ on:
       - capital-creation-v06.js
       - capital-evidence-v07.js
       - capital-allocation-v08.js
+      - session-quality-v01.js
       - tests/capital-allocation-v08.test.cjs
       - tests/capital-evidence-v07.test.cjs
       - tests/capital-creation-v06.test.cjs
       - tests/dashboard-release-check.cjs
+      - tests/session-quality-v01.test.cjs
       - tests/release-security-contract.cjs
       - .github/workflows/dashboard-release-checks.yml
   workflow_dispatch:
@@ -42,6 +46,7 @@ jobs:
         run: |
           node tests/release-security-contract.cjs
           node tests/dashboard-release-check.cjs
+          node tests/session-quality-v01.test.cjs
           node tests/capital-creation-v06.test.cjs
           node tests/capital-evidence-v07.test.cjs
           node tests/capital-allocation-v08.test.cjs
