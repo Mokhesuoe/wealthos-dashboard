@@ -107,3 +107,29 @@ console.log('PASS recurring research session freshness');
  close(z.final.liquid,960);close(z.final.distributionTax,240);
 }
 console.log('PASS independent capital model closed-form acceptance vectors');
+
+/* CSV export contract: exercise the real controller with a deterministic fake browser. */
+{
+ const elements=Object.fromEntries(ids.map(id=>[id,{value:id.startsWith('cap5_')&&m.defaults[id.slice(5)]!==undefined?String(m.defaults[id.slice(5)]):'',textContent:'',innerHTML:'',addEventListener(ev,fn){this[ev]=fn;}}]));
+ let exported='',downloaded=false;
+ const fakeURL={createObjectURL(blob){exported=blob;return 'blob:test';},revokeObjectURL(){}};
+ const fakeDoc={getElementById:id=>elements[id],createElement(tag){assert.equal(tag,'a');return {click(){downloaded=true;}}}};
+ vm.runInNewContext(js,{window:{document:fakeDoc,URL:fakeURL,Blob:class{constructor(parts){exported=parts.join('');}},setTimeout:()=>{}},console});
+ elements.cap5_liquidStart.value='1000';elements.cap5_liquidStart.input();
+ elements.cap5_monthlyContribution.value='0';elements.cap5_monthlyContribution.input();
+ elements.cap5_annualPortfolioReturn.value='0';elements.cap5_annualPortfolioReturn.input();
+ elements.cap5_annualInflation.value='0';elements.cap5_annualInflation.input();
+ elements.cap5_years.value='1';elements.cap5_years.input();
+ elements.cap5_export.click();
+ assert.equal(downloaded,true,'Export link should be activated');
+ const rows=exported.trim().split('\\n').map(x=>x.split(','));
+ assert.deepEqual(rows[0],['year','liquid','equity','debt','net','real','liquidityAdjusted','interestPaid','debtPaid','distributionTax','returnTax']);
+ assert.equal(rows.length,2,'One-year scenario exports one annual row');
+ assert.equal(rows[1][0],'1');
+ assert.equal(rows[1][1],'1000.00');
+ assert.equal(rows[1][4],'1000.00');
+ assert.equal(rows[1][5],'1000.00');
+ assert.equal(rows[1][6],'1000.00');
+ assert.ok(rows[1].slice(1).every(v=>Number.isFinite(Number(v))),'Exported financial columns must be numeric');
+}
+console.log('PASS capital CSV browser-controller export acceptance');
