@@ -24,6 +24,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./capital-creation-v06.js?v=06"></script>
 <script defer src="./capital-evidence-v07.js?v=07"></script>
 <script defer src="./capital-allocation-v08.js?v=08"></script>
+<script defer src="./session-quality-v01.js?v=01"></script>
 </head>
 <body>
 <div class="shell">
@@ -85,7 +86,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="card metric"><div class="label">Valuation layer</div><div id="valuationState" class="value">—</div><div id="valuationMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">Official event risk</div><div id="eventState" class="value">—</div><div id="eventMeta" class="muted"></div></div>
       <div class="card metric"><div class="label">v0.4 acceptance gate</div><div id="acceptState" class="value">—</div><div id="acceptMeta" class="muted"></div></div>
-      <div class="card metric"><div class="label">Recurring session research quality</div><div id="sessionQualityState" class="value">—</div><div id="sessionQualityMeta" class="muted"></div></div>
+      <div class="card metric"><div class="label">Intraday session research quality · NOT FINAL</div><div id="sessionQualityState" class="value">—</div><div id="sessionQualityMeta" class="muted"></div></div>
     </div>
 
     <details class="card" id="researchDiagnosticsPanel" style="margin:0 0 16px">
@@ -480,9 +481,17 @@ async function loadDashboard(){
     const nyParts=Object.fromEntries(new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date()).filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
     const todayNY=nyParts.year+'-'+nyParts.month+'-'+nyParts.day;
     const isSessionToday=qr?.session_date===todayNY;
-    $('sessionQualityState').textContent=qualityRun.error?'QUERY ERROR':qr?(isSessionToday?'SESSION '+String(qr.status).toUpperCase():'HISTORICAL '+String(qr.status).toUpperCase()):'NO RECORDED CHECK';
-    $('sessionQualityState').className='value '+(qr?.status==='failed'&&isSessionToday?'red':'amber');
-    $('sessionQualityMeta').textContent=qualityRun.error?'Session quality query unavailable':qr?(qr.feature_count+'/3 features · '+qr.valuation_count+'/3 valuations · '+qr.card_count+'/3 cards · '+qr.session_date+' · '+dt(qr.evaluated_at)+' · '+(qr.reasons||[]).join(', ')+(isSessionToday?' · current NY date':' · historical; current NY session not checked')+' · not investment approval'):'No scheduled session-quality result visible.';
+    // These database rows are intraday snapshots, not completed-session certificates.
+    // No post-close receipt is published to this browser. Never infer FINAL PASS.
+    const intradayQuality=window.WealthOSSessionQualityV01.present({
+      record:qr,
+      queryError:Boolean(qualityRun.error),
+      todayNY,
+      timestampLabel:qr?.evaluated_at?dt(qr.evaluated_at):null
+    });
+    $('sessionQualityState').textContent=intradayQuality.state;
+    $('sessionQualityState').className=intradayQuality.className;
+    $('sessionQualityMeta').textContent=intradayQuality.meta;
     const latestPriors=new Map();
     for(const p of priors.data||[]) if(!latestPriors.has(p.instrument_id)) latestPriors.set(p.instrument_id,p);
     const latestPaper=new Map();
