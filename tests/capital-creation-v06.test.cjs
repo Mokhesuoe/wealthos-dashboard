@@ -72,3 +72,30 @@ assert.equal(elements.create_monthlyRevenue.value,'1000','Opportunity values mus
 elements.create_monthlyRevenue.value='-2';elements.create_monthlyRevenue.input();
 assert.notEqual(elements.create_error.textContent,'','Negative revenue must be rejected');
 console.log('PASS browser-like studio integration, independent candidates and invalid input reporting');
+
+/* Independent owner economics: zero ownership, dilution and explicit funding deficit. */
+{
+ const base={...sample,ownerSharePct:0};
+ const r=engine.simulate(base);
+ close(r.cumulativeOwnerCash,0);
+ close(r.totalOperatingSurplus,3600);
+ assert.equal(r.paybackMonth,null,'Zero ownership cannot repay owner capital');
+}
+{
+ const r=engine.simulate({...sample,ownerSharePct:25,effectiveTaxPct:20,workingCapitalReservePct:10});
+ // Monthly: gross profit 500 - fixed costs 200 = 300; tax 60;
+ // working-capital holdback 100; distributable entity cash 140;
+ // owner receives 25% = 35, for 12 months.
+ close(r.cumulativeOwnerCash,420);
+ close(r.totalEntityTax,720);
+ close(r.totalGrossRevenue,12000);
+ assert.equal(r.paybackMonth,null);
+}
+{
+ const r=engine.simulate({...sample,monthlyFixedCosts:600,ownerSharePct:100});
+ close(r.cumulativeShortfalls,1200);
+ close(r.cumulativeOwnerCash,0);
+ assert.equal(r.shortfallMonths,12);
+ assert.equal(r.paybackMonth,null,'Unfunded downside must not show payback');
+}
+console.log('PASS independent capital creation ownership, tax, reserves and downside acceptance');
