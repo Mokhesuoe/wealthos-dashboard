@@ -82,3 +82,30 @@ assert.notEqual(nodes.alloc_error.textContent,'');
 nodes.alloc_share1.value='100';nodes.alloc_share1.input();
 assert.equal(nodes.alloc_error.textContent,'');
 console.log('PASS v0.8 actual browser controller source wiring and fail-closed invalid input');
+
+/* Independent boundary acceptance: total funding, liquidity buffer and concentration. */
+{
+ const z=calculate({baseline:{...baseline,available:6500},policy:{maxSinglePct:100,minRemainingPct:0}});
+ close(z.totalRequired,6500);close(z.fundingGap,0);close(z.unreservedAfter,0);
+ assert.equal(z.riskFlags.some(v=>v.includes('exceed unreserved liquid capital')),false);
+ assert.equal(z.approved,false);
+}
+{
+ const z=calculate({baseline:{...baseline,available:10000},policy:{maxSinglePct:35,minRemainingPct:40}});
+ // M6,500 required leaves M3,500, below the M4,000 buffer, even without a funding gap.
+ close(z.fundingGap,0);close(z.unreservedAfter,3500);close(z.minRemaining,4000);
+ assert(z.riskFlags.some(v=>v.includes('minimum buffer')));
+ assert.equal(z.items[1].concentrated,false,'M3,500 / M10,000 is exactly 35%');
+}
+{
+ const z=calculate({baseline:{...baseline,available:10000},policy:{maxSinglePct:34.99,minRemainingPct:0}});
+ assert.equal(z.items[1].concentrated,true,'35% must breach 34.99% threshold');
+ assert(z.riskFlags.some(v=>v.includes('concentration')));
+}
+{
+ const z=calculate({policy:{downsideFundingSharePct:[100,0,100]}});
+ close(z.downsideReserve,0);close(z.totalRequired,5000);
+ assert(z.riskFlags.some(v=>v.includes('Partial funding responsibility')));
+ assert.equal(z.investmentAuthority,false);
+}
+console.log('PASS independent allocation boundary, liquidity and concentration acceptance');
