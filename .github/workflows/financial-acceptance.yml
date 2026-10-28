@@ -1,0 +1,32 @@
+name: WealthOS financial acceptance
+on:
+  push:
+    paths:
+      - 'capital-*.js'
+      - 'index.html'
+      - 'tests/**'
+      - '.github/workflows/financial-acceptance.yml'
+  pull_request:
+    paths:
+      - 'capital-*.js'
+      - 'index.html'
+      - 'tests/**'
+      - '.github/workflows/financial-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  financial-acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Capital Intelligence and dashboard release checks
+        run: node tests/dashboard-release-check.cjs
+      - name: Capital Creation acceptance
+        run: node tests/capital-creation-v06.test.cjs
+      - name: Capital Allocation acceptance
+        run: node tests/capital-allocation-v08.test.cjs
