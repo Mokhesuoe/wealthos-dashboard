@@ -86,3 +86,24 @@ assert.match(html,/nyParts.year\+'-'\+nyParts.month\+'-'\+nyParts.day/,'Session 
 assert.match(html,/HISTORICAL /,'Old session-quality results must be labeled historical');
 assert.match(html,/current NY session not checked/,'Old checks cannot certify current market session');
 console.log('PASS recurring research session freshness');
+
+/* Independent closed-form acceptance checks: no model outputs used as expected values. */
+{
+ const p={...s,years:2,liquidStart:1000,equityStart:0,debtStart:0,monthlyContribution:0,monthlyBusinessDistribution:0,annualPortfolioReturn:0,annualInflation:10,annualFeePct:0};
+ const z=m.simulate(p);
+ close(z.final.net,1000);
+ close(z.final.real,1000/(1.1*1.1));
+ close(z.final.liquidityAdjusted,1000);
+ assert.equal(z.rows.length,2);
+ assert.equal(z.rows[0].year,1);
+ assert.equal(z.rows[1].year,2);
+}
+{
+ const z=m.simulate({...s,years:1,liquidStart:0,equityStart:0,debtStart:1200,debtAPR:0,monthlyDebtPayment:100,monthlyContribution:100,monthlyBusinessDistribution:0,annualPortfolioReturn:0,annualInflation:0});
+ close(z.final.debt,0);close(z.final.liquid,0);close(z.final.debtPaid,1200);
+}
+{
+ const z=m.simulate({...s,years:1,liquidStart:0,equityStart:0,debtStart:0,monthlyContribution:0,monthlyBusinessDistribution:100,distributionTaxPct:20,annualPortfolioReturn:0,annualInflation:0});
+ close(z.final.liquid,960);close(z.final.distributionTax,240);
+}
+console.log('PASS independent capital model closed-form acceptance vectors');
