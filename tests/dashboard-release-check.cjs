@@ -116,9 +116,12 @@ console.log('PASS independent capital model closed-form acceptance vectors');
 {
  const elements=Object.fromEntries(ids.map(id=>[id,{value:id.startsWith('cap5_')&&m.defaults[id.slice(5)]!==undefined?String(m.defaults[id.slice(5)]):'',textContent:'',innerHTML:'',addEventListener(ev,fn){this[ev]=fn;}}]));
  let exported='',downloaded=false;
- const fakeURL={createObjectURL(blob){exported=blob;return 'blob:test';},revokeObjectURL(){}};
+ const fakeURL={createObjectURL(){return 'blob:test';},revokeObjectURL(){}};
  const fakeDoc={getElementById:id=>elements[id],createElement(tag){assert.equal(tag,'a');return {click(){downloaded=true;}}}};
- vm.runInNewContext(js,{window:{document:fakeDoc,URL:fakeURL,Blob:class{constructor(parts){exported=parts.join('');}},setTimeout:()=>{}},console});
+ const FakeBlob=class{constructor(parts){exported=parts.join('');}};
+ // Browser exposes URL/Blob both globally and on window. The old VM fixture
+ // mocked only window.URL, causing a false CI failure on CSV export.
+ vm.runInNewContext(js,{window:{document:fakeDoc,URL:fakeURL,Blob:FakeBlob,setTimeout:()=>{}},URL:fakeURL,Blob:FakeBlob,console});
  elements.cap5_liquidStart.value='1000';elements.cap5_liquidStart.input();
  elements.cap5_monthlyContribution.value='0';elements.cap5_monthlyContribution.input();
  elements.cap5_annualPortfolioReturn.value='0';elements.cap5_annualPortfolioReturn.input();
