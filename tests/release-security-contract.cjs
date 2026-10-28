@@ -3,7 +3,7 @@
 'use strict';
 const fs=require('node:fs');
 const assert=require('node:assert/strict');
-const files=['index.html','capital-v05.js','capital-creation-v06.js','capital-evidence-v07.js','capital-allocation-v08.js'];
+const files=['index.html','capital-v05.js','capital-creation-v06.js','capital-evidence-v07.js','capital-allocation-v08.js','session-quality-v01.js'];
 const sources=Object.fromEntries(files.map(f=>[f,fs.readFileSync(f,'utf8')]));
 const html=sources['index.html'];
 for(const file of files){
@@ -21,4 +21,4 @@ assert(!/supabase\.from\(['"](?:trade_orders|live_orders|broker_orders)['"]\)\.i
 for(const id of ['capitalPanel','creationStudio','allocationPanel','cap5_error','create_error','alloc_error']){
  assert(html.includes('id="'+id+'"'),id+' missing from dashboard');
 }
-console.log('PASS security contract: MFA, membership, all four modules, browser secrets and live lock');
+console.log('PASS security contract: MFA, membership, all five modules, browser secrets and live lock');

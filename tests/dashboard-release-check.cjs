@@ -1,6 +1,6 @@
 // WealthOS release checks: security, Capital v0.5 computations and browser wiring.
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
-const html=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('capital-v05.js','utf8');
+const html=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('capital-v05.js','utf8'),qualityJs=fs.readFileSync('session-quality-v01.js','utf8');
 for(const [label,re] of [
  ['private application shell',/id="appPanel" class="hidden"/],
  ['MFA challenge',/id="mfaChallengePanel"/],
@@ -76,7 +76,7 @@ console.log('PASS acceptance gate result recency labels');
 
 assert.match(html,/id="sessionQualityState"/,'Separate recurring session quality indicator must exist');
 assert.match(html,/research_session_quality_runs/,'Dashboard must query recurring quality records');
-assert.match(html,/not investment approval/,'Quality pass must explicitly deny investment approval');
+assert.match(qualityJs,/not investment approval/,'Quality pass must explicitly deny investment approval');
 assert.match(html,/qualityRun\.error/,'Quality query error must be visible');
 console.log('PASS recurring quality display and no-trade semantics');
 
@@ -84,7 +84,11 @@ assert.match(html,/timeZone:'America\/New_York'/,'Recurring-quality recency uses
 assert.match(html,/formatToParts\(new Date\(\)\)/,'Session date must be built from stable Intl date parts');
 assert.match(html,/nyParts.year\+'-'\+nyParts.month\+'-'\+nyParts.day/,'Session date uses ISO-style YYYY-MM-DD');
 assert.match(html,/HISTORICAL /,'Old session-quality results must be labeled historical');
-assert.match(html,/current NY session not checked/,'Old checks cannot certify current market session');
+assert.match(qualityJs,/HISTORICAL INTRADAY /,'Old checks are historical intraday observations');
+assert.match(qualityJs,/FINAL SESSION NOT CERTIFIED/,'No intraday observation may be called final');
+assert.match(html,/Intraday session research quality · NOT FINAL/,'Visible card title must not imply certified market close');
+assert.match(html,/WealthOSSessionQualityV01\.present/,'Card must use tested fail-closed presenter');
+assert.match(html,/session-quality-v01\.js\?v=01/,'New presentation bundle must be included');
 console.log('PASS recurring research session freshness');
 
 /* Independent closed-form acceptance checks: no model outputs used as expected values. */
@@ -112,9 +116,12 @@ console.log('PASS independent capital model closed-form acceptance vectors');
 {
  const elements=Object.fromEntries(ids.map(id=>[id,{value:id.startsWith('cap5_')&&m.defaults[id.slice(5)]!==undefined?String(m.defaults[id.slice(5)]):'',textContent:'',innerHTML:'',addEventListener(ev,fn){this[ev]=fn;}}]));
  let exported='',downloaded=false;
- const fakeURL={createObjectURL(blob){exported=blob;return 'blob:test';},revokeObjectURL(){}};
+ const fakeURL={createObjectURL(){return 'blob:test';},revokeObjectURL(){}};
  const fakeDoc={getElementById:id=>elements[id],createElement(tag){assert.equal(tag,'a');return {click(){downloaded=true;}}}};
- vm.runInNewContext(js,{window:{document:fakeDoc,URL:fakeURL,Blob:class{constructor(parts){exported=parts.join('');}},setTimeout:()=>{}},console});
+ const FakeBlob=class{constructor(parts){exported=parts.join('');}};
+ // Browser exposes URL/Blob both globally and on window. The old VM fixture
+ // mocked only window.URL, causing a false CI failure on CSV export.
+ vm.runInNewContext(js,{window:{document:fakeDoc,URL:fakeURL,Blob:FakeBlob,setTimeout:()=>{}},URL:fakeURL,Blob:FakeBlob,console});
  elements.cap5_liquidStart.value='1000';elements.cap5_liquidStart.input();
  elements.cap5_monthlyContribution.value='0';elements.cap5_monthlyContribution.input();
  elements.cap5_annualPortfolioReturn.value='0';elements.cap5_annualPortfolioReturn.input();
@@ -122,7 +129,7 @@ console.log('PASS independent capital model closed-form acceptance vectors');
  elements.cap5_years.value='1';elements.cap5_years.input();
  elements.cap5_export.click();
  assert.equal(downloaded,true,'Export link should be activated');
- const rows=exported.trim().split('\\n').map(x=>x.split(','));
+ const rows=exported.trim().split('\n').map(x=>x.split(','));
  assert.deepEqual(rows[0],['year','liquid','equity','debt','net','real','liquidityAdjusted','interestPaid','debtPaid','distributionTax','returnTax']);
  assert.equal(rows.length,2,'One-year scenario exports one annual row');
  assert.equal(rows[1][0],'1');
