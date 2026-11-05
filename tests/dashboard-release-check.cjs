@@ -1,6 +1,6 @@
 // WealthOS release checks: security, Capital v0.5 computations and browser wiring.
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
-const html=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('capital-v05.js','utf8'),qualityJs=fs.readFileSync('session-quality-v01.js','utf8');
+const html=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('capital-v05.js','utf8'),qualityJs=fs.readFileSync('session-quality-v01.js','utf8'),validationJs=fs.readFileSync('strategy-validation-v01.js','utf8');
 for(const [label,re] of [
  ['private application shell',/id="appPanel" class="hidden"/],
  ['MFA challenge',/id="mfaChallengePanel"/],
@@ -90,6 +90,17 @@ assert.match(html,/Intraday session research quality · NOT FINAL/,'Visible card
 assert.match(html,/WealthOSSessionQualityV01\.present/,'Card must use tested fail-closed presenter');
 assert.match(html,/session-quality-v01\.js\?v=01/,'New presentation bundle must be included');
 console.log('PASS recurring research session freshness');
+
+assert.match(html,/id="validationState"/,'Strategy validation readiness indicator must exist');
+assert.match(html,/id="horizonIntegrityState"/,'Forecast/outcome horizon integrity indicator must exist');
+assert.match(html,/strategy_validation_runs/,'Dashboard must query the validation-readiness ledger');
+assert.match(html,/\.select\('horizon_days'\)\.eq\('status','scored'\)/,'Dashboard must inspect scored outcome horizons');
+assert.match(html,/horizon_days,reference_price/,'Expected-return query must include declared forecast horizon');
+assert.match(html,/WealthOSStrategyValidationV01\.present/,'Dashboard must use tested validation presenter');
+assert.match(validationJs,/No cross-horizon substitution permitted/,'Presenter must prohibit horizon substitution');
+assert.match(validationJs,/PROMOTION NOT APPROVED/,'Presenter must not imply validation approval');
+assert.match(validationJs,/LIVE CAPITAL LOCKED/,'Presenter must preserve live-capital lock');
+console.log('PASS strategy validation readiness and horizon integrity display');
 
 /* Independent closed-form acceptance checks: no model outputs used as expected values. */
 {
