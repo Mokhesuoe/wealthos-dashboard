@@ -1,6 +1,6 @@
 // WealthOS release checks: security, Capital v0.5 computations and browser wiring.
 const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
-const html=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('capital-v05.js','utf8'),qualityJs=fs.readFileSync('session-quality-v01.js','utf8'),validationJs=fs.readFileSync('strategy-validation-v01.js','utf8');
+const html=fs.readFileSync('index.html','utf8'),js=fs.readFileSync('capital-v05.js','utf8'),qualityJs=fs.readFileSync('session-quality-v01.js','utf8'),validationJs=fs.readFileSync('strategy-validation-v01.js','utf8'),horizonRegistryJs=fs.readFileSync('horizon-registry-v01.js','utf8');
 for(const [label,re] of [
  ['private application shell',/id="appPanel" class="hidden"/],
  ['MFA challenge',/id="mfaChallengePanel"/],
@@ -102,6 +102,15 @@ assert.match(validationJs,/No cross-horizon substitution permitted/,'Presenter m
 assert.match(validationJs,/PROMOTION NOT APPROVED/,'Presenter must not imply validation approval');
 assert.match(validationJs,/LIVE CAPITAL LOCKED/,'Presenter must preserve live-capital lock');
 console.log('PASS strategy validation readiness and horizon integrity display');
+assert.match(html,/id="horizonModelState"/,'v0.6 model specification indicator must exist');
+assert.match(html,/id="horizonForwardState"/,'v0.6 forward-test authority indicator must exist');
+assert.match(html,/forecast_horizon_model_registry/,'Dashboard must query the v0.6 horizon registry');
+assert.match(html,/expected_return_multi_horizon_v0\.6/,'Dashboard must scope registry to v0.6 family');
+assert.match(html,/WealthOSHorizonRegistryV01\.present/,'Dashboard must use tested horizon registry presenter');
+assert.match(horizonRegistryJs,/FORWARD TEST LOCKED/,'Presenter must keep forward testing locked');
+assert.match(horizonRegistryJs,/Model fit: NOT AUTHORIZED/,'Presenter must deny model fitting');
+assert.match(horizonRegistryJs,/LIVE CAPITAL LOCKED/,'Presenter must preserve capital lock');
+console.log('PASS v0.6 multi-horizon registry dashboard semantics');
 
 /* Independent closed-form acceptance checks: no model outputs used as expected values. */
 {
