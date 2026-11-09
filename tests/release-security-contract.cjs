@@ -3,7 +3,7 @@
 'use strict';
 const fs=require('node:fs');
 const assert=require('node:assert/strict');
-const files=['index.html','capital-v05.js','capital-creation-v06.js','capital-evidence-v07.js','capital-allocation-v08.js','session-quality-v01.js','strategy-validation-v01.js'];
+const files=['index.html','capital-v05.js','capital-creation-v06.js','capital-evidence-v07.js','capital-allocation-v08.js','session-quality-v01.js','strategy-validation-v01.js','horizon-registry-v01.js'];
 const sources=Object.fromEntries(files.map(f=>[f,fs.readFileSync(f,'utf8')]));
 const html=sources['index.html'];
 for(const file of files){
