@@ -28,6 +28,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./family-portfolio-v10.js?v=10"></script>
 <script defer src="./family-evidence-v11.js?v=11"></script>
 <script defer src="./family-governance-v12.js?v=12"></script>
+<script defer src="./family-certification-v13.js?v=13"></script>
 <script defer src="./session-quality-v01.js?v=01"></script>
 <script defer src="./strategy-validation-v01.js?v=01"></script>
 <script defer src="./horizon-registry-v01.js?v=01"></script>
@@ -78,7 +79,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 
   <section id="appPanel" class="hidden">
     <header class="row space top">
-      <div><div class="label">Private investment research platform · Build 2026-11-10-FC12</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
+      <div><div class="label">Private investment research platform · Build 2026-11-10-FC13</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
       <div class="row"><span class="badge amber">RESEARCH / PAPER ONLY</span><span class="badge red">LIVE CAPITAL LOCKED</span><span id="aalBadge" class="badge green">MFA AAL2</span><button id="logout" class="btn">Sign out</button></div>
     </header>
     <div class="callout"><strong>Evidence before execution.</strong> Research status is not a buy/sell instruction. All Opportunity Cards remain <code>trade_eligible=false</code>.</div>
@@ -313,6 +314,35 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div style="overflow:auto"><table><thead><tr><th>Bucket</th><th>Current</th><th>Target</th><th>Drift</th><th>Review</th></tr></thead><tbody id="fg_rebalanceRows"></tbody></table></div>
       <div id="fg_error" class="red" role="alert" style="margin-top:10px"></div>
       <div class="callout"><strong>Certification:</strong> <span id="fg_certification">NOT CERTIFIED</span></div>
+    </section>
+    <section class="card" id="familyCertificationPanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Permanent Family Capital · v0.13</div><h2>Certification Readiness & Physical-UAT Gate</h2></div><span class="badge red">WEALTHOS CANNOT SELF-CERTIFY</span></div>
+      <p class="muted">This is the final software-side readiness ledger. It detects completed local modules, records your review attestations, and identifies the exact point at which physical authenticated UAT and human governance must take over.</p>
+      <div class="row"><button type="button" id="cert_refresh" class="btn primary">Refresh local module state</button><button type="button" id="cert_export" class="btn">Export readiness JSON</button><span id="cert_detectNote" class="muted"></span></div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Qualifying liquid capital detected</div><div class="value" id="cert_capital">—</div></div>
+        <div class="card metric"><div class="label">Capital stage</div><div class="value" id="cert_stage" style="font-size:17px">—</div></div>
+        <div class="card metric"><div class="label">Software/evidence readiness</div><div class="value" id="cert_software">—</div></div>
+        <div class="card metric"><div class="label">Readiness state</div><div class="value" id="cert_state" style="font-size:16px">—</div></div>
+      </div>
+      <h3>Human review attestations</h3>
+      <p class="muted">These checkboxes are user attestations only. Checking them does not prove independent review and does not authorize capital.</p>
+      <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+        <label class="card row"><input type="checkbox" id="cert_concentrationReview"> I reviewed concentration exposures and unresolved flags.</label>
+        <label class="card row"><input type="checkbox" id="cert_withdrawalPolicyReview"> I reviewed the withdrawal policy and current readiness state.</label>
+        <label class="card row"><input type="checkbox" id="cert_sequenceStressReview"> I reviewed sequence-of-returns stress results.</label>
+        <label class="card row"><input type="checkbox" id="cert_rebalancingReview"> I reviewed current versus target allocation and drift.</label>
+        <label class="card row"><input type="checkbox" id="cert_leverageReview"> I reviewed debt/leverage and forced-sale risk.</label>
+        <label class="card row"><input type="checkbox" id="cert_successionReview"> I reviewed succession / continuity arrangements.</label>
+      </div>
+      <h3 style="margin-top:16px">Physical gates</h3>
+      <label class="row card"><input type="checkbox" id="cert_authenticatedUAT"> Authenticated multi-device UAT completed by the owner, including sign-in, MFA, private data visibility, sign-out and re-entry.</label>
+      <label class="label" style="display:block;margin-top:10px">Human governance sign-off reference (recording a reference is not verification)<input class="input" id="cert_humanSignoffRef" maxlength="200" placeholder="Signed evidence-pack / governance reference"></label>
+      <div id="cert_error" class="red" role="alert" style="margin-top:10px"></div>
+      <div class="callout"><strong>Outstanding blockers:</strong> <span id="cert_blockers" class="muted"></span></div>
+      <div style="overflow:auto"><table><thead><tr><th>Certification requirement</th><th>Status</th></tr></thead><tbody id="cert_rows"></tbody></table></div>
+      <div class="callout"><strong>Final software authority:</strong> <span id="cert_final">CERTIFIED = FALSE · LIVE CAPITAL AUTHORIZED = FALSE</span></div>
+      <p class="muted">Even after a human financial-freedom certification decision, broker connectivity and live-capital execution remain separate WealthOS project gates.</p>
     </section>
     <section class="card" id="creationStudio" style="margin-top:20px">
       <div class="row space"><div><div class="label">Capital Creation Studio · v0.6</div><h2>Commercial opportunity and capital-generation laboratory</h2></div><span class="badge amber">ILLUSTRATIVE · LOCAL ONLY</span></div>

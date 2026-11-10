@@ -52,6 +52,8 @@ The authenticated dashboard source includes a **local-only Capital Intelligence*
 
 **Withdrawal and sequence-risk governance v0.12:** the dashboard applies the Permanent Family Capital v0.2 policy to withdrawal readiness, liquidity-reserve coverage, explicit return-sequence stress and human-only rebalancing drift. Sequence tests report ending nominal/real capital, depletion and maximum drawdown; rebalancing never creates an order.
 
+**Certification readiness v0.13:** the final software-side ledger detects the local evidence/concentration/governance modules, records user review attestations, enforces an authenticated multi-device UAT gate and records a human sign-off reference without treating it as verified approval. The module always reports certified=false and live-capital-authorized=false.
+
 **Verified automated release baseline (27 October 2026):** commit `118639028b29ef0c166aa57cf67faacd0a3aa253` passed GitHub's pre-deployment dashboard tests, Pages deployment, and post-deployment HTTPS smoke test. [Workflow evidence](https://github.com/Mokhesuoe/wealthos-dashboard/actions/runs/40435306391). The published static site is **https://mokhesuoe.github.io/wealthos-dashboard/**.
 
 **Privacy boundary:** GitHub Pages and this repository publicly expose the static HTML/JavaScript shell. Research data is intended to be gated by Supabase membership, AAL2 MFA and RLS, not by secret frontend source. A genuinely private hosting origin has **not** been implemented.
