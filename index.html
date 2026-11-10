@@ -23,7 +23,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./capital-v05.js?v=05"></script>
 <script defer src="./capital-creation-v06.js?v=06"></script>
 <script defer src="./capital-evidence-v07.js?v=07"></script>
-<script defer src="./capital-allocation-v08.js?v=08"></script>
+<script defer src="./capital-allocation-v08.js?v=08"></script>\n<script defer src="./family-capital-v09.js?v=09"></script>
 <script defer src="./session-quality-v01.js?v=01"></script>
 <script defer src="./strategy-validation-v01.js?v=01"></script>
 <script defer src="./horizon-registry-v01.js?v=01"></script>
@@ -74,7 +74,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 
   <section id="appPanel" class="hidden">
     <header class="row space top">
-      <div><div class="label">Private investment research platform · Build 2026-11-09-HZN1</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
+      <div><div class="label">Private investment research platform · Build 2026-11-10-FC09</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
       <div class="row"><span class="badge amber">RESEARCH / PAPER ONLY</span><span class="badge red">LIVE CAPITAL LOCKED</span><span id="aalBadge" class="badge green">MFA AAL2</span><button id="logout" class="btn">Sign out</button></div>
     </header>
     <div class="callout"><strong>Evidence before execution.</strong> Research status is not a buy/sell instruction. All Opportunity Cards remain <code>trade_eligible=false</code>.</div>
@@ -149,6 +149,50 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="callout"><strong>Financial feasibility ≠ financial forecast.</strong> If the monthly contribution required is far above your current capacity, investment compounding alone will not achieve the target on the chosen assumptions. Business equity is valued separately and must exclude distributions already invested. Tax percentages are generic scenario inputs, <em>not</em> a statement of Lesotho tax law. Liquidity-adjusted value is illustrative, not sale proceeds.</div>
       <div class="row" style="margin:12px 0"><button class="btn" type="button" id="cap5_export">Export annual scenario CSV</button><span class="muted">No personal values stored in browser storage or uploaded to WealthOS.</span></div>
       <div style="overflow:auto;max-height:340px"><table><thead><tr><th>Year</th><th>Liquid assets</th><th>Business equity</th><th>Debt</th><th>Nominal net wealth</th><th>Real net wealth</th></tr></thead><tbody id="cap5_rows"></tbody></table></div>
+    </section>
+    <section class="card" id="familyCapitalPanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Permanent Family Capital · v0.9</div><h2>Freedom Dashboard & Spendability Stress</h2></div><span class="badge amber">PLANNING ONLY · NOT CERTIFIED</span></div>
+      <p class="muted">Measure progress to the M100m Freedom Floor, M125m Freedom Buffer, M150m Permanent Freedom and M1bn North Star. Distribution yield is kept separate from total return. All values remain local to this browser; there is no brokerage, database write or capital authority.</p>
+      <div class="callout"><strong>Current planning objective:</strong> M500,000 per month / M6,000,000 per year. Numerical gate attainment is not certification of financial independence. Taxes, fees, inflation, liquidity, concentration, drawdowns and income reliability must still be evidenced.</div>
+      <div class="row" style="margin:12px 0"><button type="button" id="fc_useEvidence" class="btn">Use current v0.7 attested liquid position</button><span id="fc_importNote" class="muted">Optional local copy only; no database write.</span></div>
+      <div class="metrics">
+        <label class="label" for="fc_currentCapital">Qualifying liquid capital (M)<input class="input" type="number" id="fc_currentCapital" value="0" min="0" step="any"></label>
+        <label class="label" for="fc_monthlyLifestyle">Monthly lifestyle target (M)<input class="input" type="number" id="fc_monthlyLifestyle" value="500000" min="0" step="any"></label>
+        <label class="label" for="fc_annualDistributionRatePct">Gross annual distribution yield (%)<input class="input" type="number" id="fc_annualDistributionRatePct" value="6" min="0" max="99.99" step="any"></label>
+        <label class="label" for="fc_distributionTaxPct">Illustrative tax on distributions (%)<input class="input" type="number" id="fc_distributionTaxPct" value="0" min="0" max="99.99" step="any"></label>
+        <label class="label" for="fc_annualPortfolioFeePct">Annual portfolio fee drag (%)<input class="input" type="number" id="fc_annualPortfolioFeePct" value="0" min="0" max="99.99" step="any"></label>
+        <label class="label" for="fc_liquidityReserve">Ring-fenced liquidity reserve (M)<input class="input" type="number" id="fc_liquidityReserve" value="0" min="0" step="any"></label>
+      </div>
+      <details>
+        <summary class="btn" style="cursor:pointer;display:inline-block">Stress assumptions: inflation, drawdown and income interruption</summary>
+        <div class="metrics">
+          <label class="label" for="fc_annualInflationPct">Annual inflation assumption (%)<input class="input" type="number" id="fc_annualInflationPct" value="4" step="any"></label>
+          <label class="label" for="fc_inflationHorizonYears">Inflation horizon (years)<input class="input" type="number" id="fc_inflationHorizonYears" value="10" min="1" max="50" step="1"></label>
+          <label class="label" for="fc_drawdownPct">Market / NAV drawdown stress (%)<input class="input" type="number" id="fc_drawdownPct" value="20" min="0" max="99.99" step="any"></label>
+          <label class="label" for="fc_interruptionMonths">Income interruption stress (months)<input class="input" type="number" id="fc_interruptionMonths" value="12" min="0" max="60" step="1"></label>
+        </div>
+      </details>
+      <div id="fc_error" class="red" role="alert" style="margin-top:10px"></div>
+      <div id="fc_warning" class="amber" role="status" style="margin:8px 0"></div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Freedom state</div><div class="value" id="fc_state" style="font-size:17px">—</div></div>
+        <div class="card metric"><div class="label">Next capital gate · distance</div><div class="value" id="fc_next" style="font-size:17px">—</div></div>
+        <div class="card metric"><div class="label">Required gross yield now</div><div class="value" id="fc_requiredYield">—</div></div>
+        <div class="card metric"><div class="label">Gross monthly distribution</div><div class="value" id="fc_grossMonthly">—</div></div>
+        <div class="card metric"><div class="label">Net spendable monthly</div><div class="value" id="fc_netMonthly">—</div></div>
+        <div class="card metric"><div class="label">Monthly reinvestment surplus / deficit</div><div class="value" id="fc_surplus">—</div></div>
+        <div class="card metric"><div class="label">Liquidity reserve coverage</div><div class="value" id="fc_reserveMonths">—</div></div>
+        <div class="card metric"><div class="label">M1bn North Star progress</div><div class="value" id="fc_m1bProgress">—</div></div>
+        <div class="card metric"><div class="label">Future monthly lifestyle after inflation</div><div class="value" id="fc_futureLifestyle">—</div></div>
+        <div class="card metric"><div class="label">Required yield after drawdown stress</div><div class="value" id="fc_drawdownYield">—</div></div>
+      </div>
+      <div class="callout"><strong>Certification status:</strong> <span id="fc_certification">NOT CERTIFIED</span><div class="muted">WealthOS v0.9 performs deterministic planning arithmetic only. It never certifies financial independence or creates investment authority.</div></div>
+      <h3>Capital-gate ladder</h3>
+      <div style="overflow:auto"><table><thead><tr><th>Gate</th><th>Capital</th><th>Progress</th><th>Distance</th><th>Yield required for lifestyle target</th><th>Status</th></tr></thead><tbody id="fc_gateRows"></tbody></table></div>
+      <h3 style="margin-top:16px">Distribution-yield stress</h3>
+      <p class="muted">Shows the selected yield and three 1-percentage-point reductions. Net spendable income subtracts the selected distribution-tax and portfolio-fee assumptions. This is not a forecast of future yields.</p>
+      <div style="overflow:auto"><table><thead><tr><th>Gross yield</th><th>Gross monthly</th><th>Net spendable monthly</th><th>Monthly surplus / deficit</th><th>Lifestyle coverage</th></tr></thead><tbody id="fc_stressRows"></tbody></table></div>
+      <p class="muted" style="margin-top:12px">No tax setting in this panel is a statement of Lesotho tax law. Portfolio fees are treated as annual capital drag for planning. Business/private equity is intentionally excluded from qualifying liquid capital unless separately monetised and evidenced.</p>
     </section>
     <section class="card" id="creationStudio" style="margin-top:20px">
       <div class="row space"><div><div class="label">Capital Creation Studio · v0.6</div><h2>Commercial opportunity and capital-generation laboratory</h2></div><span class="badge amber">ILLUSTRATIVE · LOCAL ONLY</span></div>
