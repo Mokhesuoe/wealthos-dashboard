@@ -48,6 +48,8 @@ The authenticated dashboard source includes a **local-only Capital Intelligence*
 
 **Portfolio concentration v0.10:** a local-only composition register now measures the largest holding, manager, bank/custodian, asset-class and currency exposures across up to eight liquid holdings, plus an effective holding count. Its concentration flags are descriptive prompts only—not prescribed limits, diversification advice or investment approval.
 
+**Evidence provenance v0.11:** each liquid holding can now carry local source references for ownership/balance, tax treatment, recurring fees, distribution/total-return history and counterparty/custodian review. The module separates distribution income from total return and can derive portfolio-level gross yield, effective tax, fee drag and net distribution only when the reference set is current; references remain human-review evidence pointers rather than verified documents.
+
 **Verified automated release baseline (27 October 2026):** commit `118639028b29ef0c166aa57cf67faacd0a3aa253` passed GitHub's pre-deployment dashboard tests, Pages deployment, and post-deployment HTTPS smoke test. [Workflow evidence](https://github.com/Mokhesuoe/wealthos-dashboard/actions/runs/40435306391). The published static site is **https://mokhesuoe.github.io/wealthos-dashboard/**.
 
 **Privacy boundary:** GitHub Pages and this repository publicly expose the static HTML/JavaScript shell. Research data is intended to be gated by Supabase membership, AAL2 MFA and RLS, not by secret frontend source. A genuinely private hosting origin has **not** been implemented.

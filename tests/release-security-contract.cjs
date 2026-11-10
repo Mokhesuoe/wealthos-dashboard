@@ -3,7 +3,7 @@
 'use strict';
 const fs=require('node:fs');
 const assert=require('node:assert/strict');
-const files=['index.html','capital-v05.js','capital-creation-v06.js','capital-evidence-v07.js','capital-allocation-v08.js','family-capital-v09.js','family-portfolio-v10.js','session-quality-v01.js','strategy-validation-v01.js','horizon-registry-v01.js'];
+const files=['index.html','capital-v05.js','capital-creation-v06.js','capital-evidence-v07.js','capital-allocation-v08.js','family-capital-v09.js','family-portfolio-v10.js','family-evidence-v11.js','session-quality-v01.js','strategy-validation-v01.js','horizon-registry-v01.js'];
 const sources=Object.fromEntries(files.map(f=>[f,fs.readFileSync(f,'utf8')]));
 const html=sources['index.html'];
 for(const file of files){
@@ -18,7 +18,7 @@ assert.match(html, /id="appPanel" class="hidden"/, 'research shell must not be v
 assert.match(html, /LIVE CAPITAL LOCKED/, 'no live capital claims');
 assert.match(html, /trade_eligible=false/, 'research-only content');
 assert(!/supabase\.from\(['"](?:trade_orders|live_orders|broker_orders)['"]\)\.insert\(/i.test(files.map(f=>sources[f]).join('\n')), 'no live-order insert in browser bundle');
-for(const id of ['capitalPanel','familyCapitalPanel','familyPortfolioPanel','creationStudio','allocationPanel','cap5_error','fc_error','fp_error','create_error','alloc_error']){
+for(const id of ['capitalPanel','familyCapitalPanel','familyPortfolioPanel','familyEvidencePanel','creationStudio','allocationPanel','cap5_error','fc_error','fp_error','fe_error','create_error','alloc_error']){
  assert(html.includes('id="'+id+'"'),id+' missing from dashboard');
 }
 console.log('PASS security contract: MFA, membership, all dashboard modules, browser secrets and live lock');
