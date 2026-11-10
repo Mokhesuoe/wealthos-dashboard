@@ -29,6 +29,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./family-evidence-v11.js?v=11"></script>
 <script defer src="./family-governance-v12.js?v=12"></script>
 <script defer src="./family-certification-v13.js?v=13"></script>
+<script defer src="./evidence-fingerprint-v14.js?v=14"></script>
 <script defer src="./session-quality-v01.js?v=01"></script>
 <script defer src="./strategy-validation-v01.js?v=01"></script>
 <script defer src="./horizon-registry-v01.js?v=01"></script>
@@ -79,7 +80,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 
   <section id="appPanel" class="hidden">
     <header class="row space top">
-      <div><div class="label">Private investment research platform · Build 2026-11-10-FC13</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
+      <div><div class="label">Private investment research platform · Build 2026-11-10-FC14</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
       <div class="row"><span class="badge amber">RESEARCH / PAPER ONLY</span><span class="badge red">LIVE CAPITAL LOCKED</span><span id="aalBadge" class="badge green">MFA AAL2</span><button id="logout" class="btn">Sign out</button></div>
     </header>
     <div class="callout"><strong>Evidence before execution.</strong> Research status is not a buy/sell instruction. All Opportunity Cards remain <code>trade_eligible=false</code>.</div>
@@ -343,6 +344,26 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div style="overflow:auto"><table><thead><tr><th>Certification requirement</th><th>Status</th></tr></thead><tbody id="cert_rows"></tbody></table></div>
       <div class="callout"><strong>Final software authority:</strong> <span id="cert_final">CERTIFIED = FALSE · LIVE CAPITAL AUTHORIZED = FALSE</span></div>
       <p class="muted">Even after a human financial-freedom certification decision, broker connectivity and live-capital execution remain separate WealthOS project gates.</p>
+    </section>
+    <section class="card" id="evidenceFingerprintPanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Permanent Family Capital · v0.14</div><h2>Private Evidence File Fingerprints</h2></div><span class="badge green">LOCAL SHA-256 · NO UPLOAD</span></div>
+      <p class="muted">Choose your own statements, tax notes, fee schedules, income/return records, counterparty reviews, UAT evidence or signed governance documents. WealthOS hashes the file bytes locally with SHA-256 and records only metadata plus the fingerprint. The files themselves are not uploaded by this module.</p>
+      <div class="callout"><strong>Integrity, not verification:</strong> a SHA-256 fingerprint lets us later prove that the same file was referenced; it does not prove that the document is authentic, accurate, legally applicable or correctly interpreted.</div>
+      <div class="metrics">
+        <label class="label">Evidence category<select class="input" id="ef_category">
+          <option value="ownership_balance">Ownership / balance</option><option value="tax">Tax</option><option value="fee">Fees</option><option value="income_total_return">Income / total return</option><option value="counterparty_custodian">Counterparty / custodian</option><option value="leverage">Leverage / debt</option><option value="succession_continuity">Succession / continuity</option><option value="authenticated_uat">Authenticated UAT</option><option value="human_signoff">Human sign-off</option><option value="other">Other</option>
+        </select></label>
+        <label class="label">Local evidence files<input class="input" type="file" id="ef_files" multiple></label>
+      </div>
+      <div class="row"><button type="button" class="btn primary" id="ef_hash">Fingerprint selected files locally</button><button type="button" class="btn" id="ef_export">Export evidence manifest JSON</button><button type="button" class="btn" id="ef_clear">Clear local manifest</button></div>
+      <div id="ef_progress" class="muted" role="status" style="margin-top:8px"></div><div id="ef_error" class="red" role="alert"></div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Fingerprint records</div><div class="value" id="ef_count">0</div></div>
+        <div class="card metric"><div class="label">Duplicate digests</div><div class="value" id="ef_duplicates">0</div></div>
+        <div class="card metric"><div class="label">Manifest state</div><div class="value" id="ef_status" style="font-size:15px">AWAITING LOCAL FILE SELECTION</div></div>
+      </div>
+      <div style="overflow:auto"><table><thead><tr><th>Category</th><th>Filename</th><th>Size</th><th>Last modified</th><th>SHA-256</th><th></th></tr></thead><tbody id="ef_rows"></tbody></table></div>
+      <p class="muted" style="margin-top:12px">The exported manifest contains file names, sizes, timestamps, categories and hashes only. Treat filenames themselves as potentially sensitive before sharing the manifest outside your private governance process.</p>
     </section>
     <section class="card" id="creationStudio" style="margin-top:20px">
       <div class="row space"><div><div class="label">Capital Creation Studio · v0.6</div><h2>Commercial opportunity and capital-generation laboratory</h2></div><span class="badge amber">ILLUSTRATIVE · LOCAL ONLY</span></div>
