@@ -46,6 +46,8 @@ The authenticated dashboard source includes a **local-only Capital Intelligence*
 
 **Permanent Family Capital v0.9 (10 November 2026):** the authenticated dashboard now adds a local-only Freedom Dashboard around the M100m Freedom Floor, M125m Freedom Buffer, M150m Permanent Freedom and M1bn North Star. The M500k/month lifestyle reference is stress-tested for distribution yield, tax/fees, inflation, NAV drawdown and income interruption. Numerical gate attainment is always shown separately from certification; the browser module never grants investment authority or enables live capital.
 
+**Portfolio concentration v0.10:** a local-only composition register now measures the largest holding, manager, bank/custodian, asset-class and currency exposures across up to eight liquid holdings, plus an effective holding count. Its concentration flags are descriptive prompts only—not prescribed limits, diversification advice or investment approval.
+
 **Verified automated release baseline (27 October 2026):** commit `118639028b29ef0c166aa57cf67faacd0a3aa253` passed GitHub's pre-deployment dashboard tests, Pages deployment, and post-deployment HTTPS smoke test. [Workflow evidence](https://github.com/Mokhesuoe/wealthos-dashboard/actions/runs/40435306391). The published static site is **https://mokhesuoe.github.io/wealthos-dashboard/**.
 
 **Privacy boundary:** GitHub Pages and this repository publicly expose the static HTML/JavaScript shell. Research data is intended to be gated by Supabase membership, AAL2 MFA and RLS, not by secret frontend source. A genuinely private hosting origin has **not** been implemented.

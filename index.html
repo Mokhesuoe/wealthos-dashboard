@@ -25,6 +25,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./capital-evidence-v07.js?v=07"></script>
 <script defer src="./capital-allocation-v08.js?v=08"></script>
 <script defer src="./family-capital-v09.js?v=09"></script>
+<script defer src="./family-portfolio-v10.js?v=10"></script>
 <script defer src="./session-quality-v01.js?v=01"></script>
 <script defer src="./strategy-validation-v01.js?v=01"></script>
 <script defer src="./horizon-registry-v01.js?v=01"></script>
@@ -75,7 +76,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 
   <section id="appPanel" class="hidden">
     <header class="row space top">
-      <div><div class="label">Private investment research platform · Build 2026-11-10-FC09</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
+      <div><div class="label">Private investment research platform · Build 2026-11-10-FC10</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
       <div class="row"><span class="badge amber">RESEARCH / PAPER ONLY</span><span class="badge red">LIVE CAPITAL LOCKED</span><span id="aalBadge" class="badge green">MFA AAL2</span><button id="logout" class="btn">Sign out</button></div>
     </header>
     <div class="callout"><strong>Evidence before execution.</strong> Research status is not a buy/sell instruction. All Opportunity Cards remain <code>trade_eligible=false</code>.</div>
@@ -194,6 +195,26 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <p class="muted">Shows the selected yield and three 1-percentage-point reductions. Net spendable income subtracts the selected distribution-tax and portfolio-fee assumptions. This is not a forecast of future yields.</p>
       <div style="overflow:auto"><table><thead><tr><th>Gross yield</th><th>Gross monthly</th><th>Net spendable monthly</th><th>Monthly surplus / deficit</th><th>Lifestyle coverage</th></tr></thead><tbody id="fc_stressRows"></tbody></table></div>
       <p class="muted" style="margin-top:12px">No tax setting in this panel is a statement of Lesotho tax law. Portfolio fees are treated as annual capital drag for planning. Business/private equity is intentionally excluded from qualifying liquid capital unless separately monetised and evidenced.</p>
+    </section>
+    <section class="card" id="familyPortfolioPanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Permanent Family Capital · v0.10</div><h2>Portfolio Composition & Concentration Visibility</h2></div><span class="badge amber">VISIBILITY ONLY · NOT APPROVED</span></div>
+      <p class="muted">Break qualifying liquid capital into up to eight holdings and see dependence on one holding, manager, bank/custodian, asset class or currency. Entries remain in this browser session only and are not treated as verified portfolio records.</p>
+      <div class="callout"><strong>Why this matters:</strong> reaching M100m numerically is not enough if most capital depends on one institution, one fund, one asset class or one currency. This register makes those concentrations visible without prescribing an investment allocation.</div>
+      <div class="row" style="margin-bottom:12px"><button type="button" id="fp_useTotal" class="btn primary">Use composition total in v0.9 Freedom Dashboard</button><button type="button" id="fp_clear" class="btn">Clear local composition</button><span id="fp_transferNote" class="muted"></span></div>
+      <div id="fp_error" class="red" role="alert"></div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Entered liquid portfolio</div><div class="value" id="fp_total">—</div></div>
+        <div class="card metric"><div class="label">Funded holdings</div><div class="value" id="fp_count">—</div></div>
+        <div class="card metric"><div class="label">Effective holding count</div><div class="value" id="fp_effective">—</div></div>
+        <div class="card metric"><div class="label">Largest holding</div><div class="value" id="fp_holding" style="font-size:16px">—</div></div>
+        <div class="card metric"><div class="label">Largest manager exposure</div><div class="value" id="fp_manager" style="font-size:16px">—</div></div>
+        <div class="card metric"><div class="label">Largest bank / custodian exposure</div><div class="value" id="fp_bank" style="font-size:16px">—</div></div>
+        <div class="card metric"><div class="label">Largest asset-class exposure</div><div class="value" id="fp_assetClass" style="font-size:16px">—</div></div>
+        <div class="card metric"><div class="label">Largest currency exposure</div><div class="value" id="fp_currency" style="font-size:16px">—</div></div>
+      </div>
+      <div class="callout"><strong>Concentration observations:</strong> <span id="fp_status">NOT APPROVED</span><div id="fp_notes" class="muted"></div></div>
+      <div style="overflow:auto"><table><thead><tr><th>Holding / fund</th><th>Amount (M)</th><th>Manager</th><th>Bank / custodian</th><th>Asset class</th><th>Currency</th></tr></thead><tbody id="fp_rows"></tbody></table></div>
+      <p class="muted" style="margin-top:12px">The descriptive 50% holding/manager/bank, 75% asset-class and 90% currency flags are research visibility prompts, not regulatory limits or recommended portfolio standards. A complete investment-policy allocation requires evidence, risk capacity, tax, liquidity and instrument analysis.</p>
     </section>
     <section class="card" id="creationStudio" style="margin-top:20px">
       <div class="row space"><div><div class="label">Capital Creation Studio · v0.6</div><h2>Commercial opportunity and capital-generation laboratory</h2></div><span class="badge amber">ILLUSTRATIVE · LOCAL ONLY</span></div>
