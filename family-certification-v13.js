@@ -32,7 +32,7 @@ function evaluate(input){
   const uat=Boolean(input.authenticatedUAT);
   const signoffRef=String(input.humanSignoffRef||'').trim();
   let state='EVIDENCE_INCOMPLETE';
-  if(softwareEvidenceReady&&!uat)state='SOFTWARE_EVIDENCE_READY · PHYSICAL UAT REQUIRED';
+  if(softwareEvidenceReady&&!uat)state='SOFTWARE EVIDENCE READY · PHYSICAL UAT REQUIRED';
   else if(softwareEvidenceReady&&uat&&!signoffRef)state='READY FOR HUMAN GOVERNANCE SIGN-OFF';
   else if(softwareEvidenceReady&&uat&&signoffRef)state='SIGN-OFF REFERENCE RECORDED · INDEPENDENT VERIFICATION REQUIRED';
   const finalBlockers=[...blockers];
