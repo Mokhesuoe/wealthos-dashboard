@@ -29,12 +29,12 @@ assert.equal(r.tradeEligible,false);
 assert.equal(r.effectiveGrossDistributionPct,6);
 assert.equal(r.effectiveTaxOnDistributionsPct,10);
 assert.equal(r.effectiveFeePct,1);
-assert.equal(r.weightedTotalReturnPct,7);
+assert.ok(Math.abs(r.weightedTotalReturnPct-7)<1e-9);
 assert.equal(r.grossAnnualDistribution,6_000_000);
 assert.equal(r.estimatedAnnualTax,600_000);
 assert.equal(r.estimatedAnnualFees,1_000_000);
 assert.equal(r.estimatedNetAnnualDistribution,4_400_000);
-assert.equal(r.distributionVsTotalReturnDifferencePct,1);
+assert.ok(Math.abs(r.distributionVsTotalReturnDifferencePct-1)<1e-9);
 
 const stale=rows.map(x=>({...x})); stale[0].taxDate='2025-01-01';
 r=model.calculate(stale,'2026-11-10');
