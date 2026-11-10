@@ -91,6 +91,9 @@ function calculate(raw){
   const interruptionNeed=s.monthlyLifestyle*s.interruptionMonths;
   const interruptionGap=Math.max(0,interruptionNeed-s.liquidityReserve);
   const next=nextGate(s.currentCapital);
+  const derived=[annualLifestyle,income.grossAnnual,income.tax,income.fees,income.netAnnual,income.grossMonthly,income.netMonthly,annualSurplus,monthlySurplus,futureMonthlyLifestyle,afterDrawdownCapital,interruptionNeed,interruptionGap,s.currentCapital/1_000_000_000*100];
+  if(!derived.every(Number.isFinite)||[requiredRate,futureRequiredRate,afterDrawdownRequiredRate,reserveMonths].some(v=>v!==null&&!Number.isFinite(v)))
+    throw Error('Freedom planning arithmetic exceeds supported numerical limits');
 
   const stressRates=[0,1,2,3]
     .map(d=>Math.max(0,s.annualDistributionRatePct-d))
