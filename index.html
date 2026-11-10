@@ -27,6 +27,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./family-capital-v09.js?v=09"></script>
 <script defer src="./family-portfolio-v10.js?v=10"></script>
 <script defer src="./family-evidence-v11.js?v=11"></script>
+<script defer src="./family-governance-v12.js?v=12"></script>
 <script defer src="./session-quality-v01.js?v=01"></script>
 <script defer src="./strategy-validation-v01.js?v=01"></script>
 <script defer src="./horizon-registry-v01.js?v=01"></script>
@@ -77,7 +78,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 
   <section id="appPanel" class="hidden">
     <header class="row space top">
-      <div><div class="label">Private investment research platform · Build 2026-11-10-FC11</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
+      <div><div class="label">Private investment research platform · Build 2026-11-10-FC12</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
       <div class="row"><span class="badge amber">RESEARCH / PAPER ONLY</span><span class="badge red">LIVE CAPITAL LOCKED</span><span id="aalBadge" class="badge green">MFA AAL2</span><button id="logout" class="btn">Sign out</button></div>
     </header>
     <div class="callout"><strong>Evidence before execution.</strong> Research status is not a buy/sell instruction. All Opportunity Cards remain <code>trade_eligible=false</code>.</div>
@@ -263,6 +264,55 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="callout"><strong>Evidence readiness:</strong> <span id="fe_status">EVIDENCE INCOMPLETE</span><div class="muted" id="fe_blockers"></div></div>
       <div style="overflow:auto"><table><thead><tr><th>Holding</th><th>Amount</th><th>Current refs</th><th>Distribution</th><th>Total return</th><th>Tax</th><th>Fee</th><th>Jurisdiction</th></tr></thead><tbody id="fe_rows"></tbody></table></div>
       <p class="muted" style="margin-top:12px">A reference proves only that you recorded a source pointer. It does not prove the source is authentic, current, legally applicable, or correctly interpreted. Final reliance requires independent document review and human governance.</p>
+    </section>
+    <section class="card" id="familyGovernancePanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Permanent Family Capital · v0.12</div><h2>Withdrawal, Sequence-Risk & Rebalancing Governance</h2></div><span class="badge red">HUMAN REVIEW ONLY · NO AUTO TRADES</span></div>
+      <p class="muted">Apply the Permanent Family Capital v0.2 policy to lifestyle withdrawals, return-sequence stress and functional-bucket drift. This module is deterministic planning evidence only.</p>
+      <div class="row" style="margin-bottom:12px"><button type="button" id="fg_useEvidence" class="btn primary">Use current v0.11 evidence</button><span id="fg_note" class="muted"></span></div>
+      <h3>1 · Withdrawal readiness</h3>
+      <div class="metrics">
+        <label class="label">Qualifying liquid capital (M)<input class="input" id="fg_capital" type="number" min="0" step="any" value="0"></label>
+        <label class="label">Monthly lifestyle target (M)<input class="input" id="fg_monthlyLifestyle" type="number" min="0" step="any" value="500000"></label>
+        <label class="label">Evidence-backed net monthly distribution (M)<input class="input" id="fg_netMonthlyDistribution" type="number" step="any" value="0"></label>
+        <label class="label">Liquidity reserve (M)<input class="input" id="fg_liquidityReserve" type="number" min="0" step="any" value="0"></label>
+        <label class="label">Annual inflation (%)<input class="input" id="fg_annualInflationPct" type="number" step="any" value="4"></label>
+        <label class="label">Annual fee drag (%)<input class="input" id="fg_annualFeePct" type="number" min="0" max="99.99" step="any" value="0"></label>
+      </div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Withdrawal-policy state</div><div class="value" id="fg_withdrawalState" style="font-size:17px">—</div></div>
+        <div class="card metric"><div class="label">Numeric stage</div><div class="value" id="fg_stage" style="font-size:17px">—</div></div>
+        <div class="card metric"><div class="label">Net-income coverage</div><div class="value" id="fg_coverage">—</div></div>
+        <div class="card metric"><div class="label">Liquidity reserve</div><div class="value" id="fg_reserveMonths">—</div></div>
+      </div>
+      <div class="callout"><strong>Withdrawal blockers/cautions:</strong> <span id="fg_blockers" class="muted"></span></div>
+
+      <h3>2 · Sequence-of-returns stress</h3>
+      <p class="muted">Enter comma-separated annual total returns. Withdrawals occur at the start of each year and rise with the inflation assumption. Presets are illustrative stress paths, not market forecasts.</p>
+      <div class="row"><button type="button" class="btn" id="fg_presetEarly">Early crash</button><button type="button" class="btn" id="fg_presetLate">Late crash</button><button type="button" class="btn" id="fg_presetLow">Prolonged 2%</button><button type="button" class="btn" id="fg_presetFlat">Flat 0%</button></div>
+      <label class="label" style="display:block;margin-top:10px">Annual total-return sequence (%)<input class="input" id="fg_sequenceReturnsText" value="-25,10,10,10,10"></label>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Ending nominal capital</div><div class="value" id="fg_endCapital">—</div></div>
+        <div class="card metric"><div class="label">Ending real capital</div><div class="value" id="fg_realCapital">—</div></div>
+        <div class="card metric"><div class="label">Maximum drawdown</div><div class="value" id="fg_maxDrawdown">—</div></div>
+        <div class="card metric"><div class="label">Depletion</div><div class="value" id="fg_depleted" style="font-size:17px">—</div></div>
+        <div class="card metric"><div class="label">Cumulative withdrawals</div><div class="value" id="fg_cumulative">—</div></div>
+      </div>
+      <div style="overflow:auto;max-height:330px"><table><thead><tr><th>Year</th><th>Return</th><th>Planned withdrawal</th><th>Ending capital</th><th>Real capital</th><th>Drawdown</th></tr></thead><tbody id="fg_sequenceRows"></tbody></table></div>
+
+      <h3 style="margin-top:16px">3 · Rebalancing review</h3>
+      <p class="muted">Enter current and approved target weights for the five liquid-capital functions. A drift-band breach creates a human review only; it never creates an order.</p>
+      <label class="label">Reference drift tolerance (percentage points)<input class="input" id="fg_rebalanceTolerancePP" type="number" min="0" max="100" step="any" value="5"></label>
+      <div style="overflow:auto;margin-top:10px"><table><thead><tr><th>Bucket</th><th>Current %</th><th>Target %</th></tr></thead><tbody>
+        <tr><td>Liquidity Reserve</td><td><input class="input" id="fg_current_liquidity" type="number" value="15"></td><td><input class="input" id="fg_target_liquidity" type="number" value="15"></td></tr>
+        <tr><td>Income Core</td><td><input class="input" id="fg_current_income" type="number" value="50"></td><td><input class="input" id="fg_target_income" type="number" value="50"></td></tr>
+        <tr><td>Inflation / Real-Growth</td><td><input class="input" id="fg_current_realGrowth" type="number" value="15"></td><td><input class="input" id="fg_target_realGrowth" type="number" value="15"></td></tr>
+        <tr><td>Growth Portfolio</td><td><input class="input" id="fg_current_growth" type="number" value="15"></td><td><input class="input" id="fg_target_growth" type="number" value="15"></td></tr>
+        <tr><td>Opportunity Portfolio</td><td><input class="input" id="fg_current_opportunity" type="number" value="5"></td><td><input class="input" id="fg_target_opportunity" type="number" value="5"></td></tr>
+      </tbody></table></div>
+      <div class="callout"><strong>Rebalancing state:</strong> <span id="fg_rebalanceState">—</span><div class="muted">The default 5 percentage-point band is an internal planning reference, not an industry optimum.</div></div>
+      <div style="overflow:auto"><table><thead><tr><th>Bucket</th><th>Current</th><th>Target</th><th>Drift</th><th>Review</th></tr></thead><tbody id="fg_rebalanceRows"></tbody></table></div>
+      <div id="fg_error" class="red" role="alert" style="margin-top:10px"></div>
+      <div class="callout"><strong>Certification:</strong> <span id="fg_certification">NOT CERTIFIED</span></div>
     </section>
     <section class="card" id="creationStudio" style="margin-top:20px">
       <div class="row space"><div><div class="label">Capital Creation Studio · v0.6</div><h2>Commercial opportunity and capital-generation laboratory</h2></div><span class="badge amber">ILLUSTRATIVE · LOCAL ONLY</span></div>

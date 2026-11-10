@@ -44,6 +44,7 @@ jobs:
           node tests/family-capital-v09.test.cjs
           node tests/family-portfolio-v10.test.cjs
           node tests/family-evidence-v11.test.cjs
+          node tests/family-governance-v12.test.cjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -88,6 +89,8 @@ jobs:
                  grep -q 'family-portfolio-v10.js?v=10' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'id="familyEvidencePanel"' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'family-evidence-v11.js?v=11' "$RUNNER_TEMP/wealthos-deployed.html" &&
+                 grep -q 'id="familyGovernancePanel"' "$RUNNER_TEMP/wealthos-deployed.html" &&
+                 grep -q 'family-governance-v12.js?v=12' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'session-quality-v01.js?v=01' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'strategy-validation-v01.js?v=01' "$RUNNER_TEMP/wealthos-deployed.html" &&
                  grep -q 'id="validationState"' "$RUNNER_TEMP/wealthos-deployed.html" &&
@@ -110,6 +113,8 @@ jobs:
                  grep -q 'WealthOSFamilyPortfolioV10' "$RUNNER_TEMP/wealthos-family-portfolio.js" &&
                  curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/family-evidence-v11.js?v=11" --output "$RUNNER_TEMP/wealthos-family-evidence.js" &&
                  grep -q 'WealthOSFamilyEvidenceV11' "$RUNNER_TEMP/wealthos-family-evidence.js" &&
+                 curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/family-governance-v12.js?v=12" --output "$RUNNER_TEMP/wealthos-family-governance.js" &&
+                 grep -q 'WealthOSFamilyGovernanceV12' "$RUNNER_TEMP/wealthos-family-governance.js" &&
                  curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/session-quality-v01.js?v=01" --output "$RUNNER_TEMP/wealthos-session-quality.js" &&
                  grep -q 'WealthOSSessionQualityV01' "$RUNNER_TEMP/wealthos-session-quality.js" &&
                  curl --location --fail --silent --show-error --max-time 20 "${PAGE_URL%/}/strategy-validation-v01.js?v=01" --output "$RUNNER_TEMP/wealthos-strategy-validation.js" &&
