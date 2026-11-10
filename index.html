@@ -26,6 +26,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 <script defer src="./capital-allocation-v08.js?v=08"></script>
 <script defer src="./family-capital-v09.js?v=09"></script>
 <script defer src="./family-portfolio-v10.js?v=10"></script>
+<script defer src="./family-evidence-v11.js?v=11"></script>
 <script defer src="./session-quality-v01.js?v=01"></script>
 <script defer src="./strategy-validation-v01.js?v=01"></script>
 <script defer src="./horizon-registry-v01.js?v=01"></script>
@@ -76,7 +77,7 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
 
   <section id="appPanel" class="hidden">
     <header class="row space top">
-      <div><div class="label">Private investment research platform · Build 2026-11-10-FC10</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
+      <div><div class="label">Private investment research platform · Build 2026-11-10-FC11</div><div class="brand">WealthOS<small id="sessionUser"></small></div></div>
       <div class="row"><span class="badge amber">RESEARCH / PAPER ONLY</span><span class="badge red">LIVE CAPITAL LOCKED</span><span id="aalBadge" class="badge green">MFA AAL2</span><button id="logout" class="btn">Sign out</button></div>
     </header>
     <div class="callout"><strong>Evidence before execution.</strong> Research status is not a buy/sell instruction. All Opportunity Cards remain <code>trade_eligible=false</code>.</div>
@@ -215,6 +216,53 @@ pre{white-space:pre-wrap;word-break:break-word;color:#cbd9e8;background:#081421;
       <div class="callout"><strong>Concentration observations:</strong> <span id="fp_status">NOT APPROVED</span><div id="fp_notes" class="muted"></div></div>
       <div style="overflow:auto"><table><thead><tr><th>Holding / fund</th><th>Amount (M)</th><th>Manager</th><th>Bank / custodian</th><th>Asset class</th><th>Currency</th></tr></thead><tbody id="fp_rows"></tbody></table></div>
       <p class="muted" style="margin-top:12px">The descriptive 50% holding/manager/bank, 75% asset-class and 90% currency flags are research visibility prompts, not regulatory limits or recommended portfolio standards. A complete investment-policy allocation requires evidence, risk capacity, tax, liquidity and instrument analysis.</p>
+    </section>
+    <section class="card" id="familyEvidencePanel" style="margin-top:20px">
+      <div class="row space"><div><div class="label">Permanent Family Capital · v0.11</div><h2>Evidence Provenance & Spendability Reconciliation</h2></div><span class="badge amber">SOURCE REFERENCES · HUMAN REVIEW REQUIRED</span></div>
+      <p class="muted">Attach non-sensitive source references to each liquid holding for ownership/balance, tax treatment, recurring fees, income/total-return history and counterparty review. References remain local to this browser session and are not independently verified by WealthOS.</p>
+      <div class="callout"><strong>Measurement rule:</strong> distribution income, taxes, recurring fees and total return are kept separate. WealthOS will not treat a quoted distribution yield as equivalent to total return or spendable income.</div>
+      <div class="row" style="margin-bottom:12px"><button type="button" id="fe_import" class="btn primary">Import v0.10 composition locally</button><button type="button" id="fe_toFreedom" class="btn">Use current evidence assumptions in v0.9</button><span id="fe_note" class="muted"></span></div>
+      <div class="row" role="group" aria-label="Select evidence holding" style="margin-bottom:12px">
+        <button type="button" class="btn primary" id="fe_slot0">1</button><button type="button" class="btn" id="fe_slot1">2</button><button type="button" class="btn" id="fe_slot2">3</button><button type="button" class="btn" id="fe_slot3">4</button><button type="button" class="btn" id="fe_slot4">5</button><button type="button" class="btn" id="fe_slot5">6</button><button type="button" class="btn" id="fe_slot6">7</button><button type="button" class="btn" id="fe_slot7">8</button>
+      </div>
+      <h3 id="fe_selected">Holding 1</h3>
+      <div class="metrics">
+        <label class="label">Holding / fund<input class="input" id="fe_name" maxlength="160"></label>
+        <label class="label">Amount (M)<input class="input" id="fe_amount" type="number" min="0" step="any" value="0"></label>
+        <label class="label">Manager<input class="input" id="fe_manager" maxlength="160"></label>
+        <label class="label">Bank / custodian<input class="input" id="fe_bank" maxlength="160"></label>
+        <label class="label">Asset class<input class="input" id="fe_assetClass" maxlength="160"></label>
+        <label class="label">Currency<input class="input" id="fe_currency" maxlength="24"></label>
+        <label class="label">Account / tax jurisdiction<input class="input" id="fe_jurisdiction" maxlength="160"></label>
+        <label class="label">Distribution tax assumption (%)<input class="input" id="fe_taxRatePct" type="number" min="0" max="99.99" step="any" value="0"></label>
+        <label class="label">Recurring annual fee (%)<input class="input" id="fe_annualFeePct" type="number" min="0" max="99.99" step="any" value="0"></label>
+        <label class="label">Trailing distribution rate (%)<input class="input" id="fe_distributionPct" type="number" min="0" max="99.99" step="any" value="0"></label>
+        <label class="label">Trailing total return (%)<input class="input" id="fe_totalReturnPct" type="number" step="any" value="0"></label>
+      </div>
+      <div class="cards" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+        <div class="card"><div class="label">Ownership / balance evidence</div><input class="input" id="fe_ownershipRef" placeholder="Statement / account reference" maxlength="160"><input class="input" type="date" id="fe_ownershipDate"></div>
+        <div class="card"><div class="label">Tax evidence</div><input class="input" id="fe_taxRef" placeholder="Tax note / official treatment reference" maxlength="160"><input class="input" type="date" id="fe_taxDate"></div>
+        <div class="card"><div class="label">Fee evidence</div><input class="input" id="fe_feeRef" placeholder="Fee schedule / contract reference" maxlength="160"><input class="input" type="date" id="fe_feeDate"></div>
+        <div class="card"><div class="label">Income + total-return evidence</div><input class="input" id="fe_incomeRef" placeholder="Statement / distribution-history reference" maxlength="160"><input class="input" type="date" id="fe_incomeDate"></div>
+        <div class="card"><div class="label">Counterparty / custodian evidence</div><input class="input" id="fe_counterpartyRef" placeholder="Review / rating / financial reference" maxlength="160"><input class="input" type="date" id="fe_counterpartyDate"></div>
+      </div>
+      <div id="fe_error" class="red" role="alert" style="margin-top:10px"></div>
+      <div class="metrics">
+        <div class="card metric"><div class="label">Referenced liquid capital</div><div class="value" id="fe_total">—</div></div>
+        <div class="card metric"><div class="label">Ownership evidence coverage</div><div class="value" id="fe_ownership">—</div></div>
+        <div class="card metric"><div class="label">Tax evidence coverage</div><div class="value" id="fe_tax">—</div></div>
+        <div class="card metric"><div class="label">Fee evidence coverage</div><div class="value" id="fe_fee">—</div></div>
+        <div class="card metric"><div class="label">Income evidence coverage</div><div class="value" id="fe_income">—</div></div>
+        <div class="card metric"><div class="label">Counterparty evidence coverage</div><div class="value" id="fe_counterparty">—</div></div>
+        <div class="card metric"><div class="label">Evidence-backed gross distribution yield</div><div class="value" id="fe_grossYield">—</div></div>
+        <div class="card metric"><div class="label">Effective tax on distributions</div><div class="value" id="fe_effectiveTax">—</div></div>
+        <div class="card metric"><div class="label">Effective recurring fee drag</div><div class="value" id="fe_effectiveFee">—</div></div>
+        <div class="card metric"><div class="label">Weighted trailing total return</div><div class="value" id="fe_totalReturn">—</div></div>
+        <div class="card metric"><div class="label">Estimated net monthly distribution</div><div class="value" id="fe_netIncome">—</div></div>
+      </div>
+      <div class="callout"><strong>Evidence readiness:</strong> <span id="fe_status">EVIDENCE INCOMPLETE</span><div class="muted" id="fe_blockers"></div></div>
+      <div style="overflow:auto"><table><thead><tr><th>Holding</th><th>Amount</th><th>Current refs</th><th>Distribution</th><th>Total return</th><th>Tax</th><th>Fee</th><th>Jurisdiction</th></tr></thead><tbody id="fe_rows"></tbody></table></div>
+      <p class="muted" style="margin-top:12px">A reference proves only that you recorded a source pointer. It does not prove the source is authentic, current, legally applicable, or correctly interpreted. Final reliance requires independent document review and human governance.</p>
     </section>
     <section class="card" id="creationStudio" style="margin-top:20px">
       <div class="row space"><div><div class="label">Capital Creation Studio · v0.6</div><h2>Commercial opportunity and capital-generation laboratory</h2></div><span class="badge amber">ILLUSTRATIVE · LOCAL ONLY</span></div>
