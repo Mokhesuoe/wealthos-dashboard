@@ -40,7 +40,7 @@ jobs:
           node tests/horizon-registry-v01.test.cjs
           node tests/capital-creation-v06.test.cjs
           node tests/capital-evidence-v07.test.cjs
-          node tests/capital-allocation-v08.test.cjs
+          node tests/capital-allocation-v08.test.cjs\n          node tests/family-capital-v09.test.cjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
