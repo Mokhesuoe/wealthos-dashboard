@@ -63,6 +63,8 @@ for(const bad of [
   {annualInflationPct:-51},{inflationHorizonYears:0},{inflationHorizonYears:2.5},
   {interruptionMonths:-1},{interruptionMonths:61},{liquidityReserve:Infinity}
 ])assert.throws(()=>model.calculate({...model.defaults,...bad}));
+assert.throws(()=>model.calculate({...model.defaults,monthlyLifestyle:1e308}));
+assert.throws(()=>model.calculate({...model.defaults,currentCapital:1e308,annualPortfolioFeePct:99}));
 
 assert.match(html,/id="familyCapitalPanel"/);
 assert.match(html,/family-capital-v09\.js\?v=09/);
